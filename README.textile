@@ -1,5 +1,11 @@
+h2. SwOOp
 
-h2. Inspirations
+Simple Web OOp!
+
+SwOOp is originally a fork from "Spark":https://github.com/perwendel/spark whose goal was to replace JEE Servlet dependency (originally from Jetty) by a non-blocking and event based HTTP server. After some initial refactorings, this project has emerged as a complete rewriting in order to have a more flexible and easier to test basis. After investigation, the underlying HTTP server used will be "Webbit":https://github.com/webbit/webbit which is based on "Netty":http://www.jboss.org/netty
+
+
+h2. Inspirations & Credits
 
 * Spark: "github":https://github.com/perwendel/spark and "Website":http://www.sparkjava.com/
 * "Sinatra":https://github.com/sinatra/sinatra
