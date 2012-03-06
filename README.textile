@@ -1,0 +1,8 @@
+
+h2. Inspirations
+
+* Spark: "github":https://github.com/perwendel/spark and "Website":http://www.sparkjava.com/
+* "Sinatra":https://github.com/sinatra/sinatra
+** "Base code":https://github.com/sinatra/sinatra/blob/master/lib/sinatra/base.rb
+** "Routing tests":https://github.com/sinatra/sinatra/blob/master/test/routing_test.rb
+** "Rake parse_query":https://github.com/rack/rack/blob/master/lib/rack/utils.rb#L65
