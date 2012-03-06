@@ -1,10 +1,13 @@
-package swoop.route;
+package swoop.path;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import swoop.path.Path;
+import swoop.path.Verb;
 
 public class PathTest {
 

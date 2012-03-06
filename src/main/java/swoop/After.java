@@ -1,7 +1,7 @@
 package swoop;
 
+import swoop.path.Verb;
 import swoop.route.RouteChain;
-import swoop.route.Verb;
 
 public abstract class After extends Filter {
 

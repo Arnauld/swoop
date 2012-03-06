@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import swoop.path.Path;
+import swoop.path.PathMatcherCompiler;
+import swoop.path.PathMatcherSinatraCompiler;
 import swoop.util.New;
 
 /**

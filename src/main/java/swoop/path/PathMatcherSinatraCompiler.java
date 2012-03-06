@@ -1,4 +1,4 @@
-package swoop.route;
+package swoop.path;
 
 import static swoop.util.Gsub.gsub;
 import static swoop.util.Objects.o;
@@ -15,7 +15,7 @@ import org.webbitserver.helpers.Hex;
 
 import swoop.SwoopException;
 import swoop.util.Gsub.Replacement;
-import swoop.util.URIEncode;
+import swoop.util.URICodec;
 
 public class PathMatcherSinatraCompiler implements PathMatcherCompiler {
 
@@ -52,7 +52,7 @@ public class PathMatcherSinatraCompiler implements PathMatcherCompiler {
                 break;
             default:
                 // default case
-                enc = URIEncode.encode(str);
+                enc = URICodec.encode(str);
                 if (enc.equals(str)) {
                     enc = "(?:" + escape(str) + "|%" + utf8Hex(str) + ")";
                 }

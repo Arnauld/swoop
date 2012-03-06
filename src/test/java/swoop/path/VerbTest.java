@@ -1,4 +1,4 @@
-package swoop.route;
+package swoop.path;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -7,6 +7,8 @@ import static swoop.util.Objects.o;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import swoop.path.Verb;
 
 public class VerbTest {
 

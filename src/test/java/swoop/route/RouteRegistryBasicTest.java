@@ -13,6 +13,10 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import swoop.path.Path;
+import swoop.path.PathMatcherSinatraCompiler;
+import swoop.path.Verb;
+
 
 public class RouteRegistryBasicTest {
 

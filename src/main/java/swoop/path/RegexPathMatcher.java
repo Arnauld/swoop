@@ -1,4 +1,4 @@
-package swoop.route;
+package swoop.path;
 
 import static swoop.util.Objects.o;
 

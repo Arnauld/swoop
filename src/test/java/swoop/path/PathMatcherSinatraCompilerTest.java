@@ -1,10 +1,10 @@
-package swoop.route;
+package swoop.path;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
-import static swoop.route.PathMatcherSinatraCompiler.encoded;
+import static swoop.path.PathMatcherSinatraCompiler.encoded;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -13,6 +13,8 @@ import java.util.regex.Pattern;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import swoop.path.PathMatcher;
+import swoop.path.PathMatcherSinatraCompiler;
 import swoop.util.Multimap;
 
 public class PathMatcherSinatraCompilerTest {

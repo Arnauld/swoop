@@ -1,4 +1,4 @@
-package swoop.route;
+package swoop.path;
 
 public enum Verb {
     Get, Post, Put, Delete, Head, Trace, Connect, Options, //

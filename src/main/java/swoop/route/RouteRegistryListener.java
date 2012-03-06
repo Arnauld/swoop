@@ -1,5 +1,7 @@
 package swoop.route;
 
+import swoop.path.Path;
+
 
 public interface RouteRegistryListener {
     void routeAdded(RouteRegistry registry, Path route, Route target);

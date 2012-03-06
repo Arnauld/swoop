@@ -18,7 +18,7 @@ public class URIEncodeTest {
     
     @Test(dataProvider = "data")
     public void uriEncode(String entry, String expected) throws UnsupportedEncodingException {
-        assertThat(URIEncode.encode(entry), equalTo(expected));
+        assertThat(URICodec.encode(entry), equalTo(expected));
     }
 
     

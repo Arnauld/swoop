@@ -6,6 +6,7 @@ import swoop.Action;
 import swoop.After;
 import swoop.Before;
 import swoop.Filter;
+import swoop.path.Path;
 
 /**
  * Route registry

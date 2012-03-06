@@ -1,5 +1,9 @@
 package swoop.route;
 
+import swoop.path.Path;
+import swoop.path.PathMatcher;
+import swoop.path.Verb;
+
 public class RouteEntry {
     private final Path path;
     private final PathMatcher pathMatcher;

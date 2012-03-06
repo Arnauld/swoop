@@ -1,8 +1,8 @@
 package swoop;
 
+import swoop.path.Path;
+import swoop.path.Verb;
 import swoop.route.Route;
-import swoop.route.Verb;
-import swoop.route.Path;
 import swoop.route.RouteRegistry;
 import swoop.server.SwoopServer;
 import swoop.server.SwoopServerFactory;

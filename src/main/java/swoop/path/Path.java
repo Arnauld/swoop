@@ -1,5 +1,4 @@
-package swoop.route;
-
+package swoop.path;
 
 public class Path {
     public static final String ALL_PATHS = "*";
@@ -25,12 +24,12 @@ public class Path {
         else {
             int singleQuoteEnd = route.indexOf(SINGLE_QUOTE, singleQuoteBeg+1);
             if(singleQuoteEnd<0)
-                throw new InvalidRouteException("Unbalanced quotes for route: <" + route + ">");
+                throw new InvalidPathException("Unbalanced quotes for route: <" + route + ">");
             this.verb = Verb.lookup(route.substring(0, singleQuoteBeg).trim());
             this.pathPattern = route.substring(singleQuoteBeg + 1, singleQuoteEnd).trim();
         }
         if(verb==null)
-            throw new InvalidRouteException("Invalid HTTP method part from route: <" + route + ">");
+            throw new InvalidPathException("Invalid HTTP method part from route: <" + route + ">");
     }
     
     public Path(Verb verb) {

@@ -5,6 +5,7 @@ import java.util.List;
 
 import swoop.Request;
 import swoop.Response;
+import swoop.path.Path;
 
 public abstract class Route {
     protected static final String ALL_PATHS = Path.ALL_PATHS;
@@ -56,4 +57,5 @@ public abstract class Route {
         }
         return path;
     }
+
 }

@@ -1,4 +1,4 @@
-package swoop.route;
+package swoop.path;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
