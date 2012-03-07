@@ -1,4 +1,4 @@
-<img src="https://github.com/Arnauld/swoop/raw/master/doc/images/swoop-logo.png" align="left" hspace="50px"/>
+<img src="https://github.com/Arnauld/swoop/raw/master/doc/images/swoop-logo.png"/>
 
 Simple Web OOp!
 
