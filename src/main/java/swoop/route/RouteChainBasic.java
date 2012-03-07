@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import swoop.Request;
 import swoop.Response;
+import swoop.util.Multimap;
 
 public class RouteChainBasic implements RouteChain {
     
@@ -14,13 +15,15 @@ public class RouteChainBasic implements RouteChain {
     
     private final Request request;
     private final Response response;
-    private final List<Route> routes;
+    private final RouteParameters routeParameters;
+    private final List<RouteMatch> routes;
     private int index;
     
-    public RouteChainBasic(Request request, Response response, List<Route> routes) {
+    public RouteChainBasic(Request request, Response response, RouteParameters routeParameters, List<RouteMatch> routes) {
         super();
         this.request = request;
         this.response = response;
+        this.routeParameters = routeParameters;
         this.routes = routes;
     }
 
@@ -32,11 +35,14 @@ public class RouteChainBasic implements RouteChain {
                 return;
             }
     
+            Multimap<String, String> previous = routeParameters.getUnderlying();
             try {
-                Route route = routes.get(index++);
-                route.handle(request, response, this);
+                RouteMatch routeMatch = routes.get(index++);
+                routeParameters.setUnderlying(routeMatch.getRouteParameters());
+                routeMatch.getTarget().handle(request, response, this);
             } finally {
                 index--;
+                routeParameters.setUnderlying(previous);
             }
         }
         catch(HaltException he) {

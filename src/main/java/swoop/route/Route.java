@@ -1,8 +1,5 @@
 package swoop.route;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import swoop.Request;
 import swoop.Response;
 import swoop.path.Path;
@@ -47,15 +44,4 @@ public abstract class Route {
         return this.path;
     }
     
-    public static List<String> convertRouteToList(String route) {
-        String[] pathArray = route.split("/");
-        List<String> path = new ArrayList<String>();
-        for (String p : pathArray) {
-            if (p.length() > 0) {
-                path.add(p);
-            }
-        }
-        return path;
-    }
-
 }

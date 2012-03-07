@@ -5,15 +5,33 @@ import swoop.path.Verb;
 import swoop.route.Route;
 import swoop.route.RouteRegistry;
 import swoop.server.SwoopServer;
-import swoop.server.SwoopServerFactory;
+import swoop.server.SwoopServerListener;
 
 public class Swoop {
 
-    private static boolean initialized = false;
+    private static class Context {
+        private boolean initialized = false;
+        private SwoopServer server;
+        private SwoopServerListener serverListener;
+        private RouteRegistry routeRegistry;
+        private int port = 4567;
+        void stop () {
+            if (server != null) {
+                server.stop();
+            }
+            initialized = false;
+            contextRef.remove();
+        }
+    }
+    private static ThreadLocal<Context> contextRef = new ThreadLocal<Swoop.Context>() {
+        protected Context initialValue() {
+            return new Context();
+        }
+    };
+    private static Context context() {
+        return contextRef.get();
+    }
 
-    private static SwoopServer server;
-    private static RouteRegistry routeMatcher;
-    private static int port = 4567;
 
     /**
      * Set the port that Swoop should listen on. If not called the default port is 4567. This has to be called before
@@ -23,15 +41,19 @@ public class Swoop {
      *            The port number
      */
     public synchronized static void setPort(int port) {
-        if (initialized) {
+        if (context().initialized) {
             throw new IllegalStateException("This must be done before route mapping has begun");
         }
-        Swoop.port = port;
+        context().port = port;
+    }
+    
+    public static void listener(SwoopServerListener serverListener) {
+        context().serverListener = serverListener;
     }
     
     public static void staticDir(String dir) {
         init();
-        routeMatcher.addStaticDir(dir);
+        context().routeRegistry.addStaticDir(dir);
     }
 
     /**
@@ -146,38 +168,37 @@ public class Swoop {
     
     private static void addFilter(Filter filter) {
         init();
-        routeMatcher.addRoute(new Path(filter.getApplyOn(), filter.getPath()), filter);
+        context().routeRegistry.addRoute(new Path(filter.getApplyOn(), filter.getPath()), filter);
     }
 
     private static void addRoute(Verb verb, Route route) {
         init();
-        routeMatcher.addRoute(new Path(verb, route.getPath()), route);
+        context().routeRegistry.addRoute(new Path(verb, route.getPath()), route);
     }
     
-    // WARNING, used for jUnit testing only!!!
-    synchronized static void clearRoutes() {
-        routeMatcher.clearRoutes();
-    }
-
-    // Used for jUnit testing!
-    synchronized static void stop() {
-        if (server != null) {
-            server.stop();
-        }
-        initialized = false;
+    public synchronized static void stop() {
+        context().stop();
     }
 
     private synchronized static final void init() {
-        if (!initialized) {
-            routeMatcher = Defaults.createRouteMatcher();
+        Context context = context();
+        if (!context.initialized) {
+            RouteRegistry routeRegistry = Defaults.createRouteMatcher();
+            context.routeRegistry = routeRegistry;
+            context.server = Defaults.createSwoopServer(routeRegistry);
+
+            final SwoopServer server = context.server;
+            final SwoopServerListener listener = context.serverListener;
+            final int port = context.port;
             Defaults.executeAsynchronously(new Runnable() {
                 @Override
                 public void run() {
-                    server = SwoopServerFactory.Default.create(routeMatcher);
+                    if(listener!=null)
+                        server.addListener(listener);
                     server.ignite(port);
                 }
             });
-            initialized = true;
+            context.initialized = true;
         }
     }
 }

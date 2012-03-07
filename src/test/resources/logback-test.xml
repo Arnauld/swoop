@@ -6,7 +6,12 @@
 	  	</encoder>
 	</appender>
 
-	<logger name="swoop" level="debug" />
+	<logger name="swoop" level="warn" />
+	<logger name="swoop.path" level="debug" />
+	<logger name="swoop.path.PathMatcherSinatraCompiler" level="trace"/>
+	<logger name="swoop.route" level="info" />
+	<logger name="swoop.server" level="debug" />
+	<logger name="swoop.support" level="info" />
 
 	<root level="error">
 		<appender-ref ref="STDOUT" />

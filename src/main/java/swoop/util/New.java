@@ -2,8 +2,10 @@ package swoop.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class New {
 
@@ -25,6 +27,14 @@ public class New {
 
     public static <T> CopyOnWriteArraySet<T> copyOnWriteArraySet() {
         return new CopyOnWriteArraySet<T>();
+    }
+
+    public static <T> HashSet<T> hashSet() {
+        return new HashSet<T>();
+    }
+
+    public static <T> LinkedBlockingQueue<T> linkedBlockingQueue() {
+        return new LinkedBlockingQueue<T>();
     }
 
 }

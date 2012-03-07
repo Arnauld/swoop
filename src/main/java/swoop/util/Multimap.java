@@ -2,6 +2,7 @@ package swoop.util;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  *  
@@ -34,6 +35,11 @@ public class Multimap<K, V> {
             values.put(key, list);
         }
         list.add(value);
+    }
+    
+    
+    public Set<K> keySet() {
+        return values.keySet();
     }
 
     public List<V> get(K key) {

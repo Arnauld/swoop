@@ -16,6 +16,9 @@ public class Path {
     private String pathPattern;
     
     public Path(String route) {
+        if(route==null)
+            throw new IllegalArgumentException("Missing route");
+        
         int singleQuoteBeg = route.indexOf(SINGLE_QUOTE);
         if(singleQuoteBeg<0) {
             this.verb = Verb.lookup(route.trim());
