@@ -1,6 +1,6 @@
 ## SwOOp
 
-<img src="https://github.com/Arnauld/swoop/raw/master/doc/images/swoop-logo.png" style="float:right;"/>
+<img src="https://github.com/Arnauld/swoop/raw/master/doc/images/swoop-logo.png" align="left"/>
 
 Simple Web OOp!
 
