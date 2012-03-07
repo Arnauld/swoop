@@ -1,6 +1,6 @@
 ## SwOOp
 
-<div style="float:right;"><img src="https://github.com/Arnauld/swoop/raw/master/doc/images/swoop-logo.png"></div>
+<img src="https://github.com/Arnauld/swoop/raw/master/doc/images/swoop-logo.png" style="float:right;"/>
 
 Simple Web OOp!
 
@@ -40,7 +40,7 @@ Launch the main and view it:
     $ mvn clean test
 ```
 
-Integration/Functionnal<sup>1</sup> tests:
+Integration/Functional<sup>1</sup> tests:
 
 ```bash
     $ mvn clean test -Pfunc
