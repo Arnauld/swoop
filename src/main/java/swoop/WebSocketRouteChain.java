@@ -1,4 +1,4 @@
-package swoop.route;
+package swoop;
 
 public interface WebSocketRouteChain {
     void invokeNext();

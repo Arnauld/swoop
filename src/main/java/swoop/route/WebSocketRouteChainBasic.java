@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import swoop.WebSocketConnection;
+import swoop.WebSocketRouteChain;
 import swoop.util.Multimap;
 
 public class WebSocketRouteChainBasic implements WebSocketRouteChain {

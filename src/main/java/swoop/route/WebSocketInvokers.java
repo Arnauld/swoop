@@ -2,6 +2,7 @@ package swoop.route;
 
 import swoop.WebSocketConnection;
 import swoop.WebSocketMessage;
+import swoop.WebSocketRouteChain;
 
 public class WebSocketInvokers {
     

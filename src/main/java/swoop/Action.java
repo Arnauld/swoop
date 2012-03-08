@@ -1,7 +1,6 @@
 package swoop;
 
 import swoop.route.Route;
-import swoop.route.RouteChain;
 
 public abstract class Action extends Route {
 

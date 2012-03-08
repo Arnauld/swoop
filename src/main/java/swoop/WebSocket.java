@@ -1,7 +1,6 @@
 package swoop;
 
 import swoop.route.WebSocketRoute;
-import swoop.route.WebSocketRouteChain;
 
 public abstract class WebSocket extends WebSocketRoute {
     

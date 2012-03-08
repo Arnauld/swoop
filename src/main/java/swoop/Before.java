@@ -1,7 +1,6 @@
 package swoop;
 
 import swoop.path.Verb;
-import swoop.route.RouteChain;
 
 public abstract class Before extends Filter {
 

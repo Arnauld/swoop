@@ -2,6 +2,7 @@ package swoop.route;
 
 import swoop.Request;
 import swoop.Response;
+import swoop.RouteChain;
 import swoop.path.Path;
 
 public abstract class Route implements FilterAware {

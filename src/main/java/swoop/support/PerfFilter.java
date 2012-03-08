@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 import swoop.Filter;
 import swoop.Request;
 import swoop.Response;
+import swoop.RouteChain;
 import swoop.path.Verb;
-import swoop.route.RouteChain;
 import swoop.util.CircularBuffer;
 
 public class PerfFilter extends Filter {
