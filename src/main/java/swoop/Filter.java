@@ -21,7 +21,7 @@ public abstract class Filter extends Route {
     }
     
     @Override
-    public boolean isFilter() {
+    public final boolean isFilter() {
         return true;
     }
     

@@ -48,7 +48,7 @@ public class Multimap<K, V> {
 
     public V first(K key) {
         List<V> list = values.get(key);
-        if (list.isEmpty())
+        if (list==null || list.isEmpty())
             return null;
         return list.get(0);
     }

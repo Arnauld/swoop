@@ -15,4 +15,8 @@ public class RouteRegistryListenerAdapter implements RouteRegistryListener {
     @Override
     public void routeAdded(RouteRegistry registry, Path route, Route target) {
     }
+    
+    @Override
+    public void webSocketRouteAdded(RouteRegistry registry, Path path, WebSocketRoute target) {
+    }
 }

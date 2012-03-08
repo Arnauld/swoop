@@ -1,6 +1,5 @@
 package swoop.route;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -18,13 +17,15 @@ public class RouteRegistryBasic implements RouteRegistry {
     public static final String ROOT = "/";
 
     private List<RouteEntry> routes;
+    private List<WebSocketRouteEntry> webSocketRoutes;
     private List<String> staticPaths;
     private PathMatcherCompiler pathMatcherCompiler;
     private CopyOnWriteArraySet<RouteRegistryListener> listeners;
 
     public RouteRegistryBasic() {
-        routes = new ArrayList<RouteEntry>();
-        staticPaths = new ArrayList<String>();
+        routes = New.arrayList();
+        webSocketRoutes = New.arrayList();
+        staticPaths = New.arrayList();
         pathMatcherCompiler = new PathMatcherSinatraCompiler();
         listeners = New.copyOnWriteArraySet();
     }
@@ -61,7 +62,7 @@ public class RouteRegistryBasic implements RouteRegistry {
 
     @Override
     public List<RouteMatch> findRoutes(Path requestedPath) {
-        List<RouteMatch> matchSet = new ArrayList<RouteMatch>();
+        List<RouteMatch> matchSet = New.arrayList();
         for (RouteEntry entry : routes) {
             if (entry.matches(requestedPath)) {
                 matchSet.add(new RouteMatch(requestedPath, entry));
@@ -82,6 +83,8 @@ public class RouteRegistryBasic implements RouteRegistry {
 
     @Override
     public void addRoute(Path path, Route target) {
+        if(path.getVerb().isWebSocket())
+            throw new IllegalArgumentException("WebSocket verb is not allowed for route");
         if(path.getVerb().isAny() && !target.isFilter())
             logger.debug("Be aware that you define a catch all ('any' verb) on a target");
         
@@ -92,9 +95,36 @@ public class RouteRegistryBasic implements RouteRegistry {
         for (RouteRegistryListener listener : listeners)
             listener.routeAdded(this, path, target);
     }
+    
+    @Override
+    public void addWebSocket(Path path, WebSocketRoute target) {
+        if(path.getVerb().isHttpMethod())
+            throw new IllegalArgumentException("HttpMethod verb is not allowed for websocket route");
+        if(path.getVerb().isAny() && !target.isFilter())
+            logger.debug("Be aware that you define a catch all ('any' verb) on a target");
+        
+        WebSocketRouteEntry entry = new WebSocketRouteEntry(path, pathMatcherCompiler.compile(path.getPathPattern()), target);
+        // Adds to end of list
+        webSocketRoutes.add(entry);
+
+        for (RouteRegistryListener listener : listeners)
+            listener.webSocketRouteAdded(this, path, target);
+    }
+    
+    @Override
+    public List<WebSocketRouteMatch> findWebSocketRoutes(Path requestedPath) {
+        List<WebSocketRouteMatch> matchSet = New.arrayList();
+        for (WebSocketRouteEntry entry : webSocketRoutes) {
+            if (entry.matches(requestedPath)) {
+                matchSet.add(new WebSocketRouteMatch(requestedPath, entry));
+            }
+        }
+        return matchSet;
+    }
 
     @Override
     public void clearRoutes() {
+        webSocketRoutes.clear();
         routes.clear();
         for (RouteRegistryListener listener : listeners)
             listener.routeCleared(this);

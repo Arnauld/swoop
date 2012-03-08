@@ -2,7 +2,7 @@ package swoop.path;
 
 public enum Verb {
     Get, Post, Put, Delete, Head, Trace, Connect, Options, //
-    Any;
+    Any, WebSocket;
 
     public static Verb lookup(String what) {
         if(what==null)
@@ -18,9 +18,13 @@ public enum Verb {
     public boolean isAny() {
         return (this==Any);
     }
+    
+    public boolean isWebSocket() {
+        return (this==WebSocket);
+    }
 
     public boolean isHttpMethod() {
-        return (this!=Any);
+        return (this!=Any && this!=WebSocket);
     }
 
     public boolean matches(Verb verb) {

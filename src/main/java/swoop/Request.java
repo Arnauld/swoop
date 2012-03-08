@@ -4,9 +4,13 @@ import java.util.List;
 import java.util.Set;
 
 import swoop.path.Verb;
+import swoop.route.HasRouteParameters;
+import swoop.util.HasDataParameters;
+import swoop.util.HasHeaders;
+import swoop.util.HasQueryParameters;
 
 
-public interface Request {
+public interface Request extends HasRouteParameters, HasDataParameters, HasQueryParameters, HasHeaders {
     
     public static final String USER_AGENT = "user-agent";
 
@@ -74,58 +78,6 @@ public interface Request {
     Object id();
     
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // ~~~~~~~~~~~~~~~~~~~~~~~~[DATA]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    /**
-     * Arbitrary data that can be stored for the lifetime of the connection.
-     * Retrieve data value by key.
-     *
-     * @see #data(String,String)
-     */
-    Object data(String key);
-    
-    /**
-     * Arbitrary data that can be stored for the lifetime of the connection.
-     * Store data value by key.
-     *
-     * @see #data(String)
-     */
-    void data(String key, Object value);
-    
-    /**
-     * Arbitrary data that can be stored for the lifetime of the connection.
-     * List data keys.
-     *
-     * @see #data()
-     */
-    Set<String> dataKeys();
-    
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // ~~~~~~~~~~~~~~~~~~~~~~~~[HEADER]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
-    /**
-     * Retrieve the value single HTTP header.
-     * <p/>
-     * If the header is not found, null is returned.
-     * <p/>
-     * If there are multiple headers with the same name, it will return one of them, but it is not
-     * defined which one. Instead, use {@link #headers(String)}.
-     */
-    String header(String name);
-
-    /**
-     * Retrieve all values for an HTTP header. If no values are found, an empty List is returned.
-     */
-    List<String> headers(String name);
-
-    /**
-     * Whether a specific HTTP header was present in the request.
-     */
-    boolean hasHeader(String name);
-    
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // ~~~~~~~~~~~~~~~~~~~~~~~~[COOKIE]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -153,56 +105,6 @@ public interface Request {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // ~~~~~~~~~~~~~~~~~~~~~~~~[PARAMS]~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    
-    /**
-     * Returns the value of the provided route pattern parameter.
-     * Example: parameter 'name' from the following pattern: (get '/hello/:name')
-     * 
-     * @return null if the given param is null or not found 
-     * @see #routeParams(String)
-     */
-    String routeParam(String param);
-    
-    /**
-     * Returns the values of the provided route pattern parameter.
-     * Example: parameter 'name' from the following pattern: (get '/hello/:name')
-     * 
-     * @return null if the given param is null or not found 
-     */
-    List<String> routeParams(String param);
-    
-    /**
-     * List all route parameter keys.
-     *
-     * @see #routeParam(String)
-     */
-    Set<String> routeParamKeys();
-    
-    /**
-     * Get query parameter value.
-     *
-     * @param key parameter name
-     * @return the value of the parameter
-     * @see #queryParams(String)
-     */
-    String queryParam(String key);
-
-    /**
-     * Get all query parameter values.
-     *
-     * @param key parameter name
-     * @return the values of the parameter
-     * @see #queryParam(String)
-     */
-    List<String> queryParams(String key);
-
-    /**
-     * List all query parameter keys.
-     *
-     * @see #queryParam(String)
-     */
-    Set<String> queryParamKeys();
 
     /**
      * Get post parameter value.

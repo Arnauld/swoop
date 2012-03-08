@@ -13,7 +13,7 @@ public abstract class After extends Filter {
         super(path);
     }
     
-    public After(Verb applyOn, String path) {
+    protected After(Verb applyOn, String path) {
         super(applyOn, path);
     }
 

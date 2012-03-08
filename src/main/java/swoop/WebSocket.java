@@ -1,0 +1,63 @@
+package swoop;
+
+import swoop.route.WebSocketRoute;
+import swoop.route.WebSocketRouteChain;
+
+public abstract class WebSocket extends WebSocketRoute {
+    
+    /**
+     * Constructor
+     * 
+     * @param path The route path which is used for matching. (e.g. /hello, users/:name) 
+     */
+    protected WebSocket(String path) {
+        super(path);
+    }
+
+    @Override
+    public final boolean isFilter() {
+        return false;
+    }
+
+    @Override
+    public final void onOpen(WebSocketConnection connection, WebSocketRouteChain chain) {
+        onOpen(connection);
+    }
+    
+    public void onOpen(WebSocketConnection connection) {
+    }
+
+    @Override
+    public final void onClose(WebSocketConnection connection, WebSocketRouteChain chain) {
+        onClose(connection);
+    }
+    
+    public final void onClose(WebSocketConnection connection) {
+    }
+
+    @Override
+    public final void onMessage(WebSocketConnection connection, WebSocketMessage msg, WebSocketRouteChain chain) {
+        onMessage(connection, msg);
+    }
+    
+    public final void onMessage(WebSocketConnection connection, WebSocketMessage msg) {
+    }
+
+    @Override
+    public final void onPing(WebSocketConnection connection, WebSocketMessage msg, WebSocketRouteChain chain) {
+        onPing(connection, msg);
+    }
+    
+    public final void onPing(WebSocketConnection connection, WebSocketMessage msg) {
+        connection.pong(msg.binary());
+    }
+    
+    @Override
+    public final void onPong(WebSocketConnection connection, WebSocketMessage msg, WebSocketRouteChain chain) {
+        onPong(connection, msg);
+    }
+    
+    public final void onPong(WebSocketConnection connection, WebSocketMessage msg) {
+    }
+    
+}

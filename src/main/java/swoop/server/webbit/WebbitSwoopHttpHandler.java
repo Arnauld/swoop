@@ -15,7 +15,6 @@ import org.webbitserver.HttpResponse;
 
 import swoop.StatusCode;
 import swoop.path.Path;
-import swoop.path.Verb;
 import swoop.route.HaltException;
 import swoop.route.RedirectException;
 import swoop.route.RouteChainBasic;
@@ -34,7 +33,7 @@ public class WebbitSwoopHttpHandler implements HttpHandler {
 
     @Override
     public void handleHttpRequest(HttpRequest httpRequest, HttpResponse httpResponse, HttpControl control) throws Exception {
-        Path path = getPath(httpRequest);
+        Path path = Webbits.getPath(httpRequest);
         List<RouteMatch> matches = routeRegistry.findRoutes(path);
         RouteParameters routeParameters = new RouteParameters();
         WebbitRequestAdapter request = adaptRequest(httpRequest, routeParameters);
@@ -65,10 +64,4 @@ public class WebbitSwoopHttpHandler implements HttpHandler {
         }
     }
     
-    private Path getPath(HttpRequest request) {
-        String path = Webbits.pathInfo(request);
-        Verb verb = Webbits.method(request);
-        return new Path(verb, path);
-    }
-
 }

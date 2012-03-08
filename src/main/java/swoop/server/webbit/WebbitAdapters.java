@@ -5,9 +5,12 @@ import java.util.List;
 
 import org.webbitserver.HttpRequest;
 import org.webbitserver.HttpResponse;
+import org.webbitserver.WebSocketConnection;
 
 import swoop.Cookie;
+import swoop.WebSocketMessage;
 import swoop.route.RouteParameters;
+import swoop.route.WebSocketMessageBasic;
 import swoop.util.New;
 
 public class WebbitAdapters {
@@ -29,5 +32,22 @@ public class WebbitAdapters {
 
     public static WebbitResponseAdapter adaptResponse(HttpResponse httpResponse) {
         return new WebbitResponseAdapter(httpResponse);
+    }
+
+    public static WebbitWebSocketConnection adaptConnection(WebSocketConnection wConnection,
+            WebbitRequestAdapter request) {
+        return new WebbitWebSocketConnection(wConnection, request);
+    }
+
+    public static WebSocketMessage adaptMessage(String text, RouteParameters routeParameters) {
+        WebSocketMessageBasic message = new WebSocketMessageBasic(routeParameters);
+        message.text(text);
+        return message;
+    }
+    
+    public static WebSocketMessage adaptMessage(byte[] binary, RouteParameters routeParameters) {
+        WebSocketMessageBasic message = new WebSocketMessageBasic(routeParameters);
+        message.binary(binary);
+        return message;
     }
 }

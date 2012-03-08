@@ -4,7 +4,7 @@ import swoop.Request;
 import swoop.Response;
 import swoop.path.Path;
 
-public abstract class Route {
+public abstract class Route implements FilterAware {
     protected static final String ALL_PATHS = Path.ALL_PATHS;
 
     private String path;

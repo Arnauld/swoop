@@ -47,7 +47,7 @@ public class RegexPathMatcher implements PathMatcher {
                 String key = keys.get(i);
                 String value = matcher.group(i + 1);
 
-                log.debug("Extracted from <{}>: <{},{}>", o(uri, key, value));
+                log.debug("Extracted from <{}> got <{}: {}>", o(uri, key, value));
                 // case of optional parameter in regex...
                 if (value != null)
                     params.put(key, postProcessValue(value));

@@ -43,8 +43,9 @@ public class HelloITest {
     }
     
     @AfterClass
-    public void stopServer () {
+    public void stopServer () throws InterruptedException {
         stop();
+        PortProvider.release(port);
     }
     
     @BeforeMethod

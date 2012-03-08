@@ -1,4 +1,4 @@
-package samples.echo;
+package samples.quickstart;
 
 import static swoop.Swoop.get;
 import swoop.Action;

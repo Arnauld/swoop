@@ -14,7 +14,7 @@ public abstract class Action extends Route {
     }
     
     @Override
-    public boolean isFilter() {
+    public final boolean isFilter() {
         return false;
     }
     
