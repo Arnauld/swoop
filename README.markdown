@@ -1,6 +1,6 @@
 <img src="https://github.com/Arnauld/swoop/raw/master/doc/images/swoop-logo.png"/>
 
-Simple Web OOp!
+*Simple Web OOp!*
 
 ## Quick start
 
@@ -34,14 +34,22 @@ Launch the main and view it:
   * Route patterns support 
   * Condition support (**in progress**)
 * Cookie support
-* WebSocket support (**in progress**)
-* EventSource support (**not event in progress yet**)
+* WebSocket support (**almost done** still need to figure out how to write integration tests on it)
+* EventSource support (**not even in progress yet**)
 * Static files support
 * Pluggable HTTP server
   * Default implementation based on an event-driven and non-blocking http server ([Webbit](https://github.com/webbit/webbit))
 
 
-## SwOOp in two minutes
+## *SwOOp* in...
+
+### ...two minutes!
+
+Define a filter that mesure the time spent when handling request to any `/hello/` sub routes. And define two handlers on `Get`: 
+
+* one on `/time` route that simply returns the current time
+* the other one on `/hello/:name` that extracts the `name` parameter from the called uri, simulates some random job and returns a pretty nice greeting!
+* The second route match the filter, so its content will be modified with the time spent
 
 ```java
 import static swoop.Swoop.*;
@@ -100,7 +108,9 @@ Check now at:
 and see the filter that has added the processing duration
 
 
-## SwOOp in five minutes (WebSocket!)
+### ...less than five minutes! (and with WebSocket)
+
+Let's see how to use and define websocket. First of all the code:
 
 ```java
 import static swoop.Swoop.*;
@@ -133,6 +143,9 @@ public class FiveMinutes {
         });
     }
     
+    /**
+     * utility method that simply read a resource and returns its content as string
+     */
     private static String resourceAsString(String resourcePath) {
         InputStream input = FiveMinutes.class.getResourceAsStream(resourcePath);
         try {
@@ -148,7 +161,13 @@ public class FiveMinutes {
 }
 ```
 
-Html file `FiveMinutes.html` is in `src/test/resources`
+Launch the main and view it:
+
+    http://localhost:4567/hello
+
+The route `/hello` simply load the html page from the resource and return it as is. The `Send` button on the html page send the content of the input text through a websocket. The corresponding route is defined on the server at `/hellowebcocket` which simply returns the content of the message in upper case.
+
+Html file `FiveMinutes.html` (copied from [Webbit](https://github.com/webbit/webbit)) is in `src/test/resources`
 
 ```html
 <html>
@@ -177,7 +196,7 @@ Html file `FiveMinutes.html` is in `src/test/resources`
 </html>
 ```
 
-## Developpers
+## Contributing
 
 ```bash
     $ mvn clean test
@@ -199,13 +218,12 @@ Performance tests:
 
 ## Inspirations & Credits
 
+*SwOOp* was originally a fork from [Spark](https://github.com/perwendel/spark). Idea was to replace JEE Servlet dependency (originally from [Jetty](http://jetty.codehaus.org/jetty/) by a non-blocking and event based HTTP server. After some initial refactorings, this project has emerged as a complete rewriting in order to have a more flexible and easier to test basis. There are some remainings especially *the static bootstrap initialization*.
 
-SwOOp was originally a fork from [Spark](https://github.com/perwendel/spark). Idea was to replace JEE Servlet dependency (originally from [Jetty](http://jetty.codehaus.org/jetty/) by a non-blocking and event based HTTP server. After some initial refactorings, this project has emerged as a complete rewriting in order to have a more flexible and easier to test basis. There are some remaining especially the static bootstrap initialization.
-
-After investigation, the underlying HTTP server used will be [Webbit](https://github.com/webbit/webbit) which is based on [Netty](http://www.jboss.org/netty).
-
+After investigation, the by-default underlying HTTP server is [Webbit](https://github.com/webbit/webbit) which is based on [Netty](http://www.jboss.org/netty).
 
 * Spark: [github](https://github.com/perwendel/spark) and [Website](http://www.sparkjava.com/)
+* [Webbit](https://github.com/webbit/webbit)
 * [Sinatra](https://github.com/sinatra/sinatra)
   * [Base code](https://github.com/sinatra/sinatra/blob/master/lib/sinatra/base.rb)
   * [Routing tests](https://github.com/sinatra/sinatra/blob/master/test/routing_test.rb)

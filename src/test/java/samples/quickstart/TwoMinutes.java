@@ -2,6 +2,8 @@ package samples.quickstart;
 
 import static swoop.Swoop.*;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Random;
 
 import swoop.*;
@@ -27,7 +29,8 @@ public class TwoMinutes {
         get(new Action("/time") {
             @Override
             public void handle(Request request, Response response) {
-                response.body("<h1>Current time is: " + new java.util.Date() + "</h1>");
+                DateFormat df = new SimpleDateFormat("yyyy/MM/dd'T'HH:mm:ss'-'SSS ZZZ");
+                response.body("<h1>Current time is: [" + df.format(new java.util.Date()) + "]</h1>");
             }
         });
         get(new Action("/hello/:name") {
@@ -39,7 +42,7 @@ public class TwoMinutes {
                 } catch (InterruptedException e) { 
                     /* ignore */
                 }
-                response.body("<h1>Hello!" + request.routeParam("name") + "</h1>");
+                response.body("<h1>Hello " + request.routeParam("name") + "!</h1>");
             }
         });
     }

@@ -79,6 +79,15 @@
 			<version>1.9.5</version>
 			<scope>test</scope>
 		</dependency>
+		
+		<!-- only one scope at a time... but it is for test -->
+		<dependency>
+	      <groupId>de.roderick</groupId>
+	      <artifactId>weberknecht</artifactId>
+	      <version>0.1.1</version>
+	      <scope>system</scope>
+	      <systemPath>${basedir}/lib/weberknecht-0.1.1.jar</systemPath>
+	    </dependency>
 
 		<!-- ~~~~~~~~~~~~~~~~ -->
 		<!-- ~~~~~~~Log~~~~~~ -->
