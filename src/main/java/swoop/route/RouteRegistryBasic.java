@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import swoop.path.Path;
+import swoop.path.PathMatcher;
 import swoop.path.PathMatcherCompiler;
 import swoop.path.PathMatcherSinatraCompiler;
 import swoop.util.New;
@@ -101,12 +102,18 @@ public class RouteRegistryBasic implements RouteRegistry {
         if(path.getVerb().isHttpMethod())
             throw new IllegalArgumentException("HttpMethod verb is not allowed for websocket route");
         if(path.getVerb().isAny() && !target.isFilter())
-            logger.debug("Be aware that you define a catch all ('any' verb) on a target");
+            throw new IllegalArgumentException("Target must be defined on an exact path");
+
+        String pathPattern = path.getPathPattern();
+        PathMatcher pathMatcher = pathMatcherCompiler.compile(pathPattern);
+
+        if(!target.isFilter() && pathMatcher.hasParameters())
+            throw new IllegalArgumentException("Target must be defined on an exact path got: <" + pathPattern + ">");
         
-        WebSocketRouteEntry entry = new WebSocketRouteEntry(path, pathMatcherCompiler.compile(path.getPathPattern()), target);
+        WebSocketRouteEntry entry = new WebSocketRouteEntry(path, pathMatcher, target);
         // Adds to end of list
         webSocketRoutes.add(entry);
-
+        
         for (RouteRegistryListener listener : listeners)
             listener.webSocketRouteAdded(this, path, target);
     }
@@ -117,6 +124,17 @@ public class RouteRegistryBasic implements RouteRegistry {
         for (WebSocketRouteEntry entry : webSocketRoutes) {
             if (entry.matches(requestedPath)) {
                 matchSet.add(new WebSocketRouteMatch(requestedPath, entry));
+            }
+        }
+        return matchSet;
+    }
+    
+    @Override
+    public List<WebSocketRouteEntry> listWebSocketTargets() {
+        List<WebSocketRouteEntry> matchSet = New.arrayList();
+        for (WebSocketRouteEntry entry : webSocketRoutes) {
+            if (!entry.isFilter()) {
+                matchSet.add(entry);
             }
         }
         return matchSet;

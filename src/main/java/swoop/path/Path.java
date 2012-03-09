@@ -56,4 +56,13 @@ public class Path {
     public Verb getVerb() {
         return verb;
     }
+    
+    @Override
+    public String toString() {
+        return format(verb, pathPattern);
+    }
+
+    public Path withVerb(Verb verb) {
+        return new Path(verb, getPathPattern());
+    }
 }

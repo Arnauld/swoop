@@ -87,6 +87,11 @@ public interface RouteRegistry {
      * @see WebSocket
      */
     List<WebSocketRouteMatch> findWebSocketRoutes(Path requestedPath);
+    
+    /**
+     * 
+     */
+    List<WebSocketRouteEntry> listWebSocketTargets();
 
     /**
      * Clear all routes

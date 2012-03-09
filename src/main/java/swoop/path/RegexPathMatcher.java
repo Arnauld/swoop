@@ -36,6 +36,11 @@ public class RegexPathMatcher implements PathMatcher {
         log.debug("Does <{}> match <{}>? {}", Objects.o(pattern.pattern(), uri, matches));
         return matches;
     }
+    
+    @Override
+    public boolean hasParameters() {
+        return !keys.isEmpty();
+    }
 
     @Override
     public Multimap<String, String> extractParameters(String uri) {

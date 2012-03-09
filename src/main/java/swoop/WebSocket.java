@@ -7,7 +7,7 @@ public abstract class WebSocket extends WebSocketRoute {
     /**
      * Constructor
      * 
-     * @param path The route path which is used for matching. (e.g. /hello, users/:name) 
+     * @param path The exact route path which is used for matching (e.g. /hellowebsocket) 
      */
     protected WebSocket(String path) {
         super(path);
@@ -31,7 +31,7 @@ public abstract class WebSocket extends WebSocketRoute {
         onClose(connection);
     }
     
-    public final void onClose(WebSocketConnection connection) {
+    public void onClose(WebSocketConnection connection) {
     }
 
     @Override
@@ -39,7 +39,7 @@ public abstract class WebSocket extends WebSocketRoute {
         onMessage(connection, msg);
     }
     
-    public final void onMessage(WebSocketConnection connection, WebSocketMessage msg) {
+    public void onMessage(WebSocketConnection connection, WebSocketMessage msg) {
     }
 
     @Override
@@ -47,7 +47,7 @@ public abstract class WebSocket extends WebSocketRoute {
         onPing(connection, msg);
     }
     
-    public final void onPing(WebSocketConnection connection, WebSocketMessage msg) {
+    public void onPing(WebSocketConnection connection, WebSocketMessage msg) {
         connection.pong(msg.binary());
     }
     
@@ -56,7 +56,7 @@ public abstract class WebSocket extends WebSocketRoute {
         onPong(connection, msg);
     }
     
-    public final void onPong(WebSocketConnection connection, WebSocketMessage msg) {
+    public void onPong(WebSocketConnection connection, WebSocketMessage msg) {
     }
     
 }

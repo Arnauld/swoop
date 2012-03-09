@@ -166,6 +166,25 @@ public class Swoop {
         addFilter(interceptor);
     }
     
+    /**
+     * 
+     * @param filter
+     */
+    public static void webSocket(WebSocket webSocket) {
+        init();
+        context().routeRegistry.addWebSocket(new Path(Verb.WebSocket, webSocket.getPath()), webSocket);
+    }
+    
+    /**
+     * 
+     * @param filter
+     */
+    public static void aroundWebSocket(WebSocketFilter filter) {
+        init();
+        context().routeRegistry.addWebSocket(new Path(Verb.WebSocket, filter.getPath()), filter);
+    }
+
+    
     private static void addFilter(Filter filter) {
         init();
         context().routeRegistry.addRoute(new Path(filter.getApplyOn(), filter.getPath()), filter);

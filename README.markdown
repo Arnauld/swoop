@@ -35,6 +35,7 @@ Launch the main and view it:
   * Condition support (**in progress**)
 * Cookie support
 * WebSocket support (**in progress**)
+* EventSource support (**not event in progress yet**)
 * Static files support
 * Pluggable HTTP server
   * Default implementation based on an event-driven and non-blocking http server ([Webbit](https://github.com/webbit/webbit))
@@ -99,11 +100,82 @@ Check now at:
 and see the filter that has added the processing duration
 
 
-## SwOOp in ten minutes (WebSocket!)
+## SwOOp in five minutes (WebSocket!)
 
-**in progress**
+```java
+import static swoop.Swoop.*;
 
+import java.io.IOException;
+import java.io.InputStream;
 
+import org.apache.commons.io.IOUtils;
+
+import swoop.*;
+
+public class FiveMinutes {
+
+    public static void main(String[] args) {
+        get(new Action("/hello") {
+            @Override
+            public void handle(Request request, Response response) {
+                // for code simplicity page is loaded from a resource
+                // use Swoop.staticDir(dir) for static content instead
+                response.body(resourceAsString("FiveMinutes.html"));
+            }
+        });
+        webSocket(new WebSocket("/hellowebsocket") {
+            @Override
+            public void onMessage(WebSocketConnection connection, WebSocketMessage msg) {
+                // echo back message in upper case if it is text
+                if(msg.isText())
+                    connection.send(msg.text().toUpperCase());
+            }
+        });
+    }
+    
+    private static String resourceAsString(String resourcePath) {
+        InputStream input = FiveMinutes.class.getResourceAsStream(resourcePath);
+        try {
+            return IOUtils.toString(input);
+        }
+        catch(IOException ioe) {
+            throw new SwoopException("Failed to load resource <" + resourcePath + ">", ioe);
+        }
+        finally {
+            IOUtils.closeQuietly(input);
+        }
+    }
+}
+```
+
+Html file `FiveMinutes.html` is in `src/test/resources`
+
+```html
+<html>
+  <body>
+    <!-- Send text to websocket -->
+    <input id="userInput" type="text">
+    <button onclick="ws.send(document.getElementById('userInput').value)">Send</button>
+
+    <!-- Results -->
+    <div id="message"></div>
+
+    <script>
+      function showMessage(text) {
+        document.getElementById('message').innerHTML += "<br/>" + text;
+      }
+
+      // Have a look to www.modernizr.com as an efficient library to figure out
+      // if your browser support webSocket, and other html5 features
+      var ws = new WebSocket('ws://' + document.location.host + '/hellowebsocket');
+      showMessage('Connecting...');
+      ws.onopen = function() { showMessage('Connected!'); };
+      ws.onclose = function() { showMessage('Lost connection'); };
+      ws.onmessage = function(msg) { showMessage(msg.data); };
+    </script>
+  </body>
+</html>
+```
 
 ## Developpers
 
@@ -128,7 +200,7 @@ Performance tests:
 ## Inspirations & Credits
 
 
-SwOOp is originally a fork from [Spark](https://github.com/perwendel/spark). Idea was to replace JEE Servlet dependency (originally from [Jetty](http://jetty.codehaus.org/jetty/) by a non-blocking and event based HTTP server. After some initial refactorings, this project has emerged as a complete rewriting in order to have a more flexible and easier to test basis. 
+SwOOp was originally a fork from [Spark](https://github.com/perwendel/spark). Idea was to replace JEE Servlet dependency (originally from [Jetty](http://jetty.codehaus.org/jetty/) by a non-blocking and event based HTTP server. After some initial refactorings, this project has emerged as a complete rewriting in order to have a more flexible and easier to test basis. There are some remaining especially the static bootstrap initialization.
 
 After investigation, the underlying HTTP server used will be [Webbit](https://github.com/webbit/webbit) which is based on [Netty](http://www.jboss.org/netty).
 

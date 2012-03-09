@@ -56,15 +56,23 @@ public class WebbitSwoopServer implements SwoopServer {
         if (webServer != null)
             webServer.add(new StaticFileHandler(dir));
     }
-
+    
     @Override
     public synchronized void ignite(int port) {
         for (SwoopServerListener listener : listeners)
             listener.serverStarting(this);
 
         webServer = createWebServer(port);
+        
+        webServer.connectionExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                log.error("Uncaught Exception [" + t + "]", e);
+            }
+        });
         defineStaticDirs(webServer, routeRegistry);
-        defineSwoopHandler(webServer, routeRegistry);
+        defineSwoopWebSocketHandler(webServer, routeRegistry);
+        defineSwoopHttpHandler(webServer, routeRegistry);
 
         log.info("Starting server on port {}", port);
         Future<? extends WebServer> start = webServer.start();
@@ -81,11 +89,19 @@ public class WebbitSwoopServer implements SwoopServer {
             listener.serverStarted(this);
     }
 
-    protected void defineSwoopHandler(WebServer webServer, RouteRegistry routeRegistry) {
+    protected void defineSwoopHttpHandler(WebServer webServer, RouteRegistry routeRegistry) {
         webServer.add(new WebbitSwoopHttpHandler(routeRegistry));
+    }
+    
+    protected synchronized void defineSwoopWebSocketHandler(WebServer webServer, RouteRegistry routeRegistry) {
+        webServer.add(new WebbitSwoopWebSocketHandler(routeRegistry));
     }
 
     protected void defineStaticDirs(WebServer webServer, RouteRegistry routeMatcher) {
+        // TODO refactor this: remove listener based behavior
+        // and rely on something comparable to webSocket and Route...
+        // ~~> rename method to 'defineStaticDirsHandler'
+        // ~~> use only one and shared executor for all underlying StaticFileHandler! 
         for (String dir : routeMatcher.getStaticDirs()) {
             webServer.add(new StaticFileHandler(dir));// "/web"
         }

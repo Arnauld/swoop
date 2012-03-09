@@ -15,6 +15,10 @@ public abstract class AbstractEntry<T extends FilterAware> {
         this.target = target;
     }
     
+    public String getPathPattern() {
+        return path.getPathPattern();
+    }
+    
     public Verb getVerb() {
         return path.getVerb();
     }
