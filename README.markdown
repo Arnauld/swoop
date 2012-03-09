@@ -2,7 +2,7 @@
 
 *Simple Web OOp!*
 
-## Quick start
+# Quick start
 
 ```java
 import static swoop.Swoop.get;
@@ -27,7 +27,7 @@ Launch the main and view it:
 
     http://0.0.0.0:4567
 
-## Features
+# Features
 
 * Simple and extensible
 * Sinatra based routing ([Sinatra Route](http://www.sinatrarb.com/intro.html#Routes))
@@ -41,9 +41,9 @@ Launch the main and view it:
   * Default implementation based on an event-driven and non-blocking http server ([Webbit](https://github.com/webbit/webbit))
 
 
-## *SwOOp* in...
+# *SwOOp* in...
 
-### ...two minutes!
+## ...two minutes!
 
 Define a filter that mesure the time spent when handling request to any `/hello/` sub routes. And define two handlers on `Get`: 
 
@@ -109,7 +109,7 @@ Check now at:
 and see the filter that has added the processing duration
 
 
-### ...less than five minutes! (and with WebSocket)
+## ...less than five minutes! (and with WebSocket)
 
 Let's see how to use and define websocket. First of all the code:
 
@@ -197,7 +197,7 @@ Html file `FiveMinutes.html` (copied from [Webbit](https://github.com/webbit/web
 </html>
 ```
 
-## Contributing
+# Contributing
 
 ```bash
     $ mvn clean test
