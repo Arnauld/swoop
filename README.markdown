@@ -69,7 +69,8 @@ public class TwoMinutes {
                 finally {
                     long t1 = System.currentTimeMillis();
                     String body = response.body();
-                    body += "<br/><small>Request " + request.logInfo() + " executed in " + (t1-t0) + "ms</small>";
+                    body += "<br/><small>Request " + request.logInfo() 
+                                + " executed in " + (t1-t0) + "ms</small>";
                     response.body(body);
                 }
             }
