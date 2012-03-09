@@ -1,10 +1,10 @@
-## Weberknecht
+# Weberknecht
 
 > Weberknecht is a Java implementation of the client side of the IETF WebSocket Protocol Draft draft-ietf-hybi-thewebsocketprotocol-00 (May 23, 2010) for use in Java SE or Android applications.
 
 [weberknecht: Java WebSocket Client Library](http://code.google.com/p/weberknecht/) - Apache License 2.0
 
-### Usage
+## Usage
 
 ```java
     try {
