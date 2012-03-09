@@ -79,15 +79,13 @@
 			<version>1.9.5</version>
 			<scope>test</scope>
 		</dependency>
-		
-		<!-- only one scope at a time... but it is for test -->
+
 		<dependency>
-	      <groupId>de.roderick</groupId>
-	      <artifactId>weberknecht</artifactId>
-	      <version>0.1.1</version>
-	      <scope>system</scope>
-	      <systemPath>${basedir}/lib/weberknecht-0.1.1.jar</systemPath>
-	    </dependency>
+			<groupId>de.roderick</groupId>
+			<artifactId>weberknecht</artifactId>
+			<version>0.1.1</version>
+			<scope>test</scope>
+		</dependency>
 
 		<!-- ~~~~~~~~~~~~~~~~ -->
 		<!-- ~~~~~~~Log~~~~~~ -->
@@ -155,6 +153,12 @@
 			<releases>
 				<enabled>true</enabled>
 			</releases>
+		</repository>
+		<!-- embedded repo -->
+		<repository>
+			<id>project.local</id>
+			<name>project</name>
+			<url>file:${project.basedir}/repo</url>
 		</repository>
 	</repositories>
 
