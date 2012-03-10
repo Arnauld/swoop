@@ -38,7 +38,7 @@ Launch the main and view it:
 * EventSource support (**not even in progress yet**)
 * Static files support
 * Pluggable HTTP server
-  * Default implementation based on an event-driven and non-blocking http server ([Webbit](https://github.com/webbit/webbit))
+  * Default implementation based on an *event-driven* and *non-blocking* http server ([Webbit](https://github.com/webbit/webbit))
 
 
 # *SwOOp* in...
@@ -196,6 +196,12 @@ Html file `FiveMinutes.html` (copied from [Webbit](https://github.com/webbit/web
   </body>
 </html>
 ```
+
+## ... in ten minutes (but event-driven!)
+
+**In progress**
+
+Port of [NodeJS and Callbacks](http://tapestryjava.blogspot.com/2012/03/nodejs-and-callbacks.html) article using SwOOp.
 
 # Contributing
 
