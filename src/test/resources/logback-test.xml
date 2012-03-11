@@ -13,6 +13,7 @@
 	<logger name="swoop.support" level="info" />
 	
 	<logger name="samples.quiz" level="debug" />
+	<logger name="samples.quiz.service.QuizServiceInMemory" level="warn" />
 	<logger name="samples.quiz.infra" level="warn"/>
 
 	<root level="error">

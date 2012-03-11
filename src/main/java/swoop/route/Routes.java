@@ -2,9 +2,14 @@ package swoop.route;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import swoop.util.New;
 
 public class Routes {
+    
+    private static Logger logger = LoggerFactory.getLogger(Routes.class);
     
     public static RouteMatch firstTarget(List<RouteMatch> routes) {
         for(RouteMatch m : routes) {
@@ -20,8 +25,12 @@ public class Routes {
         Route target = null;
         for(RouteMatch m : matches) {
             Route r = m.getTarget();
-            if(!r.isFilter())
-                target = r;
+            if(!r.isFilter()) {
+                if(target==null)
+                    target = r;
+                else
+                    logger.error("Multiple target defined, only the first one is kept [{}]", matches);
+            }
             else
                 routes.add(r);
         }
