@@ -67,7 +67,7 @@ public class VerbTest {
     
     @Test(dataProvider="allVerbs")
     public void isHttpMethod(Verb verb) {
-        assertThat(verb.isHttpMethod(), is(verb!=Verb.Any));
+        assertThat(verb.isHttpMethod(), is(verb!=Verb.Any && verb!=Verb.WebSocket));
     }
     
     @DataProvider(name = "allVerbs")

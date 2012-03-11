@@ -3,7 +3,9 @@ package swoop.util;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -46,6 +48,13 @@ public class New {
 
     public static <K,V> ConcurrentHashMap<K, V> concurrentHashMap() {
         return new ConcurrentHashMap<K, V>();
+    }
+    public static <K,V> ConcurrentHashMap<K, V> concurrentHashMap(int initialCapacity) {
+        return new ConcurrentHashMap<K, V>(initialCapacity);
+    }
+
+    public static <T> ConcurrentLinkedQueue<T> concurrentLinkedQueue() {
+        return new ConcurrentLinkedQueue<T>();
     }
 
 }

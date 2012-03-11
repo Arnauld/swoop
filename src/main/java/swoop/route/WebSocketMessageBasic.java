@@ -1,5 +1,6 @@
 package swoop.route;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -58,4 +59,14 @@ public class WebSocketMessageBasic implements WebSocketMessage {
         this.bytes = null;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "WebSocketMessageBasic [bytes=" + Arrays.toString(bytes)
+                + ", text=" + text + "]";
+    }
+
+    
 }

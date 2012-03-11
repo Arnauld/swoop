@@ -12,6 +12,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.testng.annotations.AfterClass;
@@ -49,10 +50,11 @@ public class FiveMinutesITest {
     }
 
     @Test
-    public void webSocket() throws URISyntaxException, WebSocketException {
+    public void webSocket() throws URISyntaxException, WebSocketException, InterruptedException {
         final AtomicBoolean opened = new AtomicBoolean();
         final AtomicBoolean closed = new AtomicBoolean();
         final List<String> messagesReceived = New.arrayList();
+        final CountDownLatch messageArrived = new CountDownLatch(1);
 
         URI url = new URI("ws://0.0.0.0:" + port + "/hellowebsocket");
         WebSocket websocket = new WebSocketConnection(url);
@@ -63,6 +65,7 @@ public class FiveMinutesITest {
 
             public void onMessage(WebSocketMessage message) {
                 messagesReceived.add(message.getText());
+                messageArrived.countDown();
             }
 
             public void onClose() {
@@ -72,10 +75,14 @@ public class FiveMinutesITest {
 
         websocket.connect(); // Establish WebSocket Connection
         websocket.send("hello world"); // Send UTF-8 Text
-        websocket.close();
+        
+        // block until message has arrived
+        messageArrived.await(500, TimeUnit.MILLISECONDS);
 
         assertThat(opened.get(), is(true));
         assertThat(messagesReceived, equalTo(asList("HELLO WORLD")));
+        
+        websocket.close();
         assertThat(closed.get(), is(true));
     }
 }

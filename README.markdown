@@ -197,7 +197,7 @@ Html file `FiveMinutes.html` (copied from [Webbit](https://github.com/webbit/web
 </html>
 ```
 
-## ... in ten minutes (but event-driven!)
+## ... in more than ten minutes (but non-blocking and functional!)
 
 **In progress**
 
@@ -222,6 +222,10 @@ Performance tests:
 ```
 
 <sup>1</sup>: Whereas it is really debatable, in the case of a middleware library i guess both are strongly related, by the way "don’t worry too much about what you call a test, as long as you are clear on what it does and it does a single thing." &mdash; [The false dichotomy of tests](http://gojko.net/2011/01/12/the-false-dichotomy-of-tests/)
+
+# Implementation notes
+
+* SwOOp route management and http dispatch method is strongly based on the Interceptor Pattern (see [Core J2EE Patterns - Intercepting Filter](http://java.sun.com/blueprints/corej2eepatterns/Patterns/InterceptingFilter.html))
 
 ## Inspirations & Credits
 

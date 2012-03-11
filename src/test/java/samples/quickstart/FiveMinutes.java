@@ -1,13 +1,20 @@
 package samples.quickstart;
 
-import static swoop.Swoop.*;
+import static swoop.Swoop.get;
+import static swoop.Swoop.webSocket;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
 
-import swoop.*;
+import swoop.Action;
+import swoop.Request;
+import swoop.Response;
+import swoop.SwoopException;
+import swoop.WebSocket;
+import swoop.WebSocketConnection;
+import swoop.WebSocketMessage;
 
 public class FiveMinutes {
 

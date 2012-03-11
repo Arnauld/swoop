@@ -9,8 +9,11 @@
 	<logger name="swoop" level="warn" />
 	<logger name="swoop.path" level="info" />
 	<logger name="swoop.route" level="info" />
-	<logger name="swoop.server" level="info" />
+	<logger name="swoop.server" level="debug" />
 	<logger name="swoop.support" level="info" />
+	
+	<logger name="samples.quiz" level="debug" />
+	<logger name="samples.quiz.infra" level="warn"/>
 
 	<root level="error">
 		<appender-ref ref="STDOUT" />

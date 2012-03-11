@@ -23,7 +23,7 @@ public class Json {
             throw new BookshelfException("JSON Deserialization error", e);
         }
     }
-    
+
     public static <T> T fromJson(String json, Class<T> valueType) {
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -38,9 +38,16 @@ public class Json {
     }
 
     public static <T> String toJson(T value) {
+        return toJson(value, false);
+    }
+
+    public static <T> String toJson(T what, boolean prettyPrint) {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            return mapper.writeValueAsString(value);
+            if (prettyPrint)
+                return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(what);
+            else
+                return mapper.writeValueAsString(what);
         } catch (JsonGenerationException e) {
             throw new BookshelfException("JSON Serialization error", e);
         } catch (JsonMappingException e) {
