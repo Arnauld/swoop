@@ -5,53 +5,75 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import swoop.Request;
-import swoop.Response;
 import swoop.RouteChain;
+import swoop.util.Context;
 import swoop.util.Multimap;
 
-public class RouteChainBasic implements RouteChain {
-    
+public class RouteChainBasic<R extends FilterAware> implements RouteChain {
+
+    public static <R extends FilterAware> RouteChainBasic<R> create(Invoker<RouteMatch<R>> invoker,
+            List<RouteMatch<R>> links, Context context) {
+        return new RouteChainBasic<R>(invoker, links, context);
+    }
+
     private Logger logger = LoggerFactory.getLogger(RouteChainBasic.class);
-    
-    private final Request request;
-    private final Response response;
-    private final RouteParameters routeParameters;
-    private final List<RouteMatch> routes;
+
+    private final Invoker<RouteMatch<R>> invoker;
+    private final List<RouteMatch<R>> links;
+    private final Context context;
     private int index;
-    
-    public RouteChainBasic(Request request, Response response, RouteParameters routeParameters, List<RouteMatch> routes) {
+
+
+    public RouteChainBasic(Invoker<RouteMatch<R>> invoker, //
+                           List<RouteMatch<R>> links, //
+                           Context context) {
         super();
-        this.request = request;
-        this.response = response;
-        this.routeParameters = routeParameters;
-        this.routes = routes;
+        this.invoker = invoker;
+        this.links = links;
+        this.context = context;
+    }
+    
+    @Override
+    public Context context() {
+        return context;
     }
 
     @Override
     public void invokeNext() {
+        if (index == links.size()) {
+            logger.warn("No more link in the chain. This usually happens when there is no matching target and only filters");
+            return;
+        }
+
+        UnderlyingModifier underlyingModifier = new UnderlyingModifier(context.adaptTo(RouteParameters.class));
         try {
-            if (index == routes.size()) {
-                logger.warn("No more link in the chain. This usually happens when there is no matching target and only filters");
-                return;
-            }
-    
-            Multimap<String, String> previous = routeParameters.getUnderlying();
-            try {
-                RouteMatch routeMatch = routes.get(index++);
-                routeParameters.setUnderlying(routeMatch.getRouteParameters());
-                routeMatch.getTarget().handle(request, response, this);
-            } finally {
-                index--;
-                routeParameters.setUnderlying(previous);
-            }
-        }
-        catch(HaltException he) {
-            throw he;
-        }
-        catch(RuntimeException re) {
-            logger.error("Oops", re);
-            throw re;
+            RouteMatch<R> routeMatch = links.get(index++);
+            underlyingModifier.changeWith(routeMatch.getRouteParameters());
+            invoker.invoke(routeMatch, this);
+        } finally {
+            underlyingModifier.revert();
+            index--;
         }
     }
+    
+    private static class UnderlyingModifier {
+        private RouteParameters routeParameters;
+        private Multimap<String, String> previous;
+        public UnderlyingModifier(RouteParameters routeParameters) {
+            this.routeParameters = routeParameters;
+        }
+        public void changeWith(Multimap<String, String> content) {
+            if(routeParameters==null)
+                return;
+            previous = routeParameters.getUnderlying();
+            routeParameters.setUnderlying(content);
+        }
+        public void revert() {
+            if(routeParameters==null)
+                return;
+            routeParameters.setUnderlying(previous);
+        }
+        
+    }
+
 }

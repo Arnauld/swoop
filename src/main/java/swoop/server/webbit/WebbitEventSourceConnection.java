@@ -2,16 +2,16 @@ package swoop.server.webbit;
 
 import java.util.Set;
 
+import swoop.EventSourceConnection;
+import swoop.EventSourceMessage;
 import swoop.Request;
-import swoop.WebSocketConnection;
 
-public class WebbitWebSocketConnection implements WebSocketConnection {
+public class WebbitEventSourceConnection implements EventSourceConnection {
 
-    private final org.webbitserver.WebSocketConnection connection;
+    private final org.webbitserver.EventSourceConnection connection;
     private final WebbitRequestAdapter request;
 
-    public WebbitWebSocketConnection(org.webbitserver.WebSocketConnection connection, WebbitRequestAdapter request) {
-        super();
+    public WebbitEventSourceConnection(org.webbitserver.EventSourceConnection connection, WebbitRequestAdapter request) {
         this.connection = connection;
         this.request = request;
     }
@@ -20,31 +20,29 @@ public class WebbitWebSocketConnection implements WebSocketConnection {
     public Object raw() {
         return connection;
     }
-
+    
     @Override
-    public WebSocketConnection send(String message) {
-        connection.send(message);
+    public EventSourceConnection send(long id, String message) {
+        connection.send(new org.webbitserver.EventSourceMessage(message).id(id));
+        return this;
+    }
+    
+    @Override
+    public EventSourceConnection send(String message) {
+        connection.send(new org.webbitserver.EventSourceMessage(message));
         return this;
     }
 
     @Override
-    public WebSocketConnection send(byte[] message) {
-        connection.send(message);
+    public EventSourceConnection send(EventSourceMessage message) {
+        org.webbitserver.EventSourceMessage msg = new org.webbitserver.EventSourceMessage(message.content());
+        Long id = message.id();
+        if(id!=null)
+            msg.id(id);
+        connection.send(msg);
         return this;
     }
-
-    @Override
-    public WebSocketConnection ping(byte[] message) {
-        connection.ping(message);
-        return this;
-    }
-
-    @Override
-    public WebSocketConnection pong(byte[] message) {
-        connection.pong(message);
-        return this;
-    }
-
+    
     @Override
     public Request request() {
         return request;

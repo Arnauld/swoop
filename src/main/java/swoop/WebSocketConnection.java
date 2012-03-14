@@ -5,6 +5,8 @@ import swoop.util.HasDataParameters;
 
 public interface WebSocketConnection extends HasDataParameters {
 
+    Object raw();
+    
     /**
      * Sends a text frame
      *
@@ -41,4 +43,9 @@ public interface WebSocketConnection extends HasDataParameters {
      * Return the underlying request
      */
     Request request();
+    
+    /**
+     * 
+     */
+    void close();
 }

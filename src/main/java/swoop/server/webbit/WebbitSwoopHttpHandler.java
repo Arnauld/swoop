@@ -16,14 +16,18 @@ import org.webbitserver.HttpResponse;
 import swoop.StatusCode;
 import swoop.path.Path;
 import swoop.route.HaltException;
+import swoop.route.Invoker;
 import swoop.route.RedirectException;
+import swoop.route.Route;
 import swoop.route.RouteChainBasic;
+import swoop.route.RouteInvoker;
 import swoop.route.RouteMatch;
 import swoop.route.RouteParameters;
 import swoop.route.RouteRegistry;
+import swoop.util.ContextBasic;
 
 public class WebbitSwoopHttpHandler implements HttpHandler {
-    
+
     private Logger logger = LoggerFactory.getLogger(WebbitSwoopHttpHandler.class);
     private RouteRegistry routeRegistry;
 
@@ -32,41 +36,38 @@ public class WebbitSwoopHttpHandler implements HttpHandler {
     }
 
     @Override
-    public void handleHttpRequest(HttpRequest httpRequest, HttpResponse httpResponse, HttpControl control) throws Exception {
+    public void handleHttpRequest(HttpRequest httpRequest, HttpResponse httpResponse, HttpControl control)
+            throws Exception {
         Path path = Webbits.getPath(httpRequest);
-        List<RouteMatch> matches = routeRegistry.findRoutes(path);
-        if(matches.isEmpty()) {
+        List<RouteMatch<Route>> matches = routeRegistry.findRoutes(path);
+        if (matches.isEmpty()) {
             control.nextHandler();
             return;
         }
-        
+
         RouteParameters routeParameters = new RouteParameters();
         WebbitRequestAdapter request = adaptRequest(httpRequest, routeParameters);
         WebbitResponseAdapter response = adaptResponse(httpResponse);
-        
+        ContextBasic context = new ContextBasic()//
+                .register(RouteParameters.class, routeParameters);
+
         try {
-            RouteChainBasic chain = new RouteChainBasic(
-                    request, 
-                    response, routeParameters, matches);
-            chain.invokeNext();
-        }
-        catch(HaltException he) {
+            Invoker<RouteMatch<Route>> invoker = new RouteInvoker(request, response);
+            RouteChainBasic.create(invoker, matches, context).invokeNext();
+        } catch (HaltException he) {
             logger.info("Processing halted", he);
             response.body(he.getBody());
             response.status(he.getStatusCode());
-        }
-        catch(RedirectException re) {
+        } catch (RedirectException re) {
             logger.info("Redirecting to " + re.getLocation(), re);
             response.redirect(re.getLocation());
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             logger.error("Processing error <" + httpRequest.uri() + ">", e);
             response.body(ExceptionUtils.getStackTrace(e));
             response.status(StatusCode.SERVICE_UNAVAILABLE);
-        }
-        finally {
+        } finally {
             response.end();
         }
     }
-    
+
 }

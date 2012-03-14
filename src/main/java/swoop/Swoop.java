@@ -1,37 +1,18 @@
 package swoop;
 
-import swoop.path.Path;
-import swoop.path.Verb;
-import swoop.route.Route;
-import swoop.route.RouteRegistry;
-import swoop.server.SwoopServer;
 import swoop.server.SwoopServerListener;
 
 public class Swoop {
 
-    private static class Context {
-        private boolean initialized = false;
-        private SwoopServer server;
-        private SwoopServerListener serverListener;
-        private RouteRegistry routeRegistry;
-        private int port = 4567;
-        void stop () {
-            if (server != null) {
-                server.stop();
-            }
-            initialized = false;
-            contextRef.remove();
-        }
-    }
-    private static ThreadLocal<Context> contextRef = new ThreadLocal<Swoop.Context>() {
-        protected Context initialValue() {
-            return new Context();
+    private static ThreadLocal<SwoopBuilder> contextRef = new ThreadLocal<SwoopBuilder>() {
+        protected SwoopBuilder initialValue() {
+            return new SwoopBuilder();
         }
     };
-    private static Context context() {
+
+    private static SwoopBuilder context() {
         return contextRef.get();
     }
-
 
     /**
      * Set the port that Swoop should listen on. If not called the default port is 4567. This has to be called before
@@ -41,19 +22,15 @@ public class Swoop {
      *            The port number
      */
     public synchronized static void setPort(int port) {
-        if (context().initialized) {
-            throw new IllegalStateException("This must be done before route mapping has begun");
-        }
-        context().port = port;
+        context().setPort(port);
     }
-    
+
     public static void listener(SwoopServerListener serverListener) {
-        context().serverListener = serverListener;
+        context().serverListener(serverListener);
     }
-    
+
     public static void staticDir(String dir) {
-        init();
-        context().routeRegistry.addStaticDir(dir);
+        context().staticDir(dir);
     }
 
     /**
@@ -63,7 +40,7 @@ public class Swoop {
      *            The route
      */
     public static void get(Action action) {
-        addRoute(Verb.Get, action);
+        context().get(action);
     }
 
     /**
@@ -73,7 +50,7 @@ public class Swoop {
      *            The route
      */
     public static void post(Action action) {
-        addRoute(Verb.Post, action);
+        context().post(action);
     }
 
     /**
@@ -83,7 +60,7 @@ public class Swoop {
      *            The route
      */
     public static void put(Action action) {
-        addRoute(Verb.Put, action);
+        context().put(action);
     }
 
     /**
@@ -93,7 +70,7 @@ public class Swoop {
      *            The route
      */
     public static void delete(Action action) {
-        addRoute(Verb.Delete, action);
+        context().delete(action);
     }
 
     /**
@@ -103,7 +80,7 @@ public class Swoop {
      *            The route
      */
     public static void head(Action action) {
-        addRoute(Verb.Head, action);
+        context().head(action);
     }
 
     /**
@@ -113,7 +90,7 @@ public class Swoop {
      *            The route
      */
     public static void trace(Action action) {
-        addRoute(Verb.Trace, action);
+        context().trace(action);
     }
 
     /**
@@ -123,7 +100,7 @@ public class Swoop {
      *            The route
      */
     public static void connect(Action action) {
-        addRoute(Verb.Connect, action);
+        context().connect(action);
     }
 
     /**
@@ -133,7 +110,7 @@ public class Swoop {
      *            The route
      */
     public static void options(Action action) {
-        addRoute(Verb.Options, action);
+        context().options(action);
     }
 
     /**
@@ -143,7 +120,7 @@ public class Swoop {
      *            The filter
      */
     public static void before(Before before) {
-        addFilter(before);
+        context().before(before);
     }
 
     /**
@@ -153,7 +130,7 @@ public class Swoop {
      *            The filter
      */
     public static void after(After after) {
-        addFilter(after);
+        context().after(after);
     }
 
     /**
@@ -163,61 +140,68 @@ public class Swoop {
      *            The interceptor
      */
     public static void around(Filter interceptor) {
-        addFilter(interceptor);
+        context().around(interceptor);
     }
-    
+
+    public static void define(WebSocket webSocket) {
+        context().define(webSocket);
+    }
+
+    public static void define(WebSocketFilter filter) {
+        context().define(filter);
+    }
+
     /**
      * 
      * @param filter
      */
     public static void webSocket(WebSocket webSocket) {
-        init();
-        context().routeRegistry.addWebSocket(new Path(Verb.WebSocket, webSocket.getPath()), webSocket);
+        context().webSocket(webSocket);
     }
-    
+
     /**
      * 
      * @param filter
      */
     public static void aroundWebSocket(WebSocketFilter filter) {
-        init();
-        context().routeRegistry.addWebSocket(new Path(Verb.WebSocket, filter.getPath()), filter);
+        context().aroundWebSocket(filter);
     }
 
-    
-    private static void addFilter(Filter filter) {
-        init();
-        context().routeRegistry.addRoute(new Path(filter.getApplyOn(), filter.getPath()), filter);
+    /**
+     * @param eventSource
+     */
+    public static void define(EventSource eventSource) {
+        context().define(eventSource);
     }
 
-    private static void addRoute(Verb verb, Route route) {
-        init();
-        context().routeRegistry.addRoute(new Path(verb, route.getPath()), route);
+    /**
+     * @param filter
+     */
+    public static void define(EventSourceFilter filter) {
+        context().define(filter);
     }
-    
+
+    /**
+     * 
+     * @param filter
+     */
+    public static void eventSource(EventSource eventSource) {
+        context().eventSource(eventSource);
+    }
+
+    /**
+     * 
+     * @param filter
+     */
+    public static void aroundEventSource(EventSourceFilter filter) {
+        context().aroundEventSource(filter);
+    }
+
+    /**
+     * 
+     */
     public synchronized static void stop() {
         context().stop();
     }
 
-    private synchronized static final void init() {
-        Context context = context();
-        if (!context.initialized) {
-            RouteRegistry routeRegistry = Defaults.createRouteMatcher();
-            context.routeRegistry = routeRegistry;
-            context.server = Defaults.createSwoopServer(routeRegistry);
-
-            final SwoopServer server = context.server;
-            final SwoopServerListener listener = context.serverListener;
-            final int port = context.port;
-            Defaults.executeAsynchronously(new Runnable() {
-                @Override
-                public void run() {
-                    if(listener!=null)
-                        server.addListener(listener);
-                    server.ignite(port);
-                }
-            });
-            context.initialized = true;
-        }
-    }
 }

@@ -30,7 +30,7 @@ public class VerbTest {
     public void lookup_post() {
         assertThat(Verb.lookup("post"), equalTo(Verb.Post));
     }
-    
+
     @Test
     public void lookup_post_ignoringcase() {
         assertThat(Verb.lookup("post"), equalTo(Verb.Post));
@@ -60,55 +60,58 @@ public class VerbTest {
         assertThat(Verb.lookup("any"), equalTo(Verb.Any));
     }
 
-    @Test(dataProvider="allVerbs")
+    @Test(dataProvider = "allVerbs")
     public void isFilter(Verb verb) {
-        assertThat(verb.isAny(), is(verb==Verb.Any));
+        assertThat(verb.isAny(), is(verb == Verb.Any));
     }
-    
-    @Test(dataProvider="allVerbs")
+
+    @Test(dataProvider = "allVerbs")
     public void isHttpMethod(Verb verb) {
-        assertThat(verb.isHttpMethod(), is(verb!=Verb.Any && verb!=Verb.WebSocket));
+        assertThat(verb.isHttpMethod(), is(verb != Verb.Any //
+                && verb != Verb.WebSocket //
+                && verb != Verb.EventSource//
+                && verb != Verb.StaticContent));
     }
-    
+
     @DataProvider(name = "allVerbs")
     public Object[][] matchAll() {
         Verb[] verbs = Verb.values();
         Object[][] list = new Object[verbs.length][];
-        for(int i=0;i<verbs.length;i++)
-           list[i] = o(verbs[i]);
+        for (int i = 0; i < verbs.length; i++)
+            list[i] = o(verbs[i]);
         return list;
     }
-    
+
     @Test
     public void matches_any() {
-        for(Verb v : Verb.values()) {
+        for (Verb v : Verb.values()) {
             assertThat(Verb.Any.matches(v), is(true));
         }
     }
-    
+
     @Test
     public void matches_get() {
         assertThat(Verb.Get.matches(Verb.Any), is(false));
         assertThat(Verb.Get.matches(Verb.Post), is(false));
         assertThat(Verb.Get.matches(Verb.Get), is(true));
     }
-    
-    @Test(dataProvider="allVerbsCombi")
+
+    @Test(dataProvider = "allVerbsCombi")
     public void matches(Verb verb1, Verb verb2, boolean match) {
         assertThat(verb1.matches(verb2), equalTo(match));
     }
-    
+
     @DataProvider(name = "allVerbsCombi")
     public Object[][] allVerbsCombi() {
         Verb[] verbs = Verb.values();
-        Object[][] list = new Object[verbs.length*verbs.length][];
+        Object[][] list = new Object[verbs.length * verbs.length][];
         int count = 0;
-        for(int i=0;i<verbs.length;i++) {
-            for(int j=0;j<verbs.length;j++) {
+        for (int i = 0; i < verbs.length; i++) {
+            for (int j = 0; j < verbs.length; j++) {
                 Verb verb1 = verbs[i];
                 Verb verb2 = verbs[j];
-                list[count++] = o(verb1, verb2, verb1==Verb.Any || verb1==verb2);
-             }
+                list[count++] = o(verb1, verb2, verb1 == Verb.Any || verb1 == verb2);
+            }
         }
         return list;
     }

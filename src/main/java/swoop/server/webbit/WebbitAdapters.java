@@ -3,6 +3,7 @@ package swoop.server.webbit;
 import java.net.HttpCookie;
 import java.util.List;
 
+import org.webbitserver.EventSourceConnection;
 import org.webbitserver.HttpRequest;
 import org.webbitserver.HttpResponse;
 import org.webbitserver.WebSocketConnection;
@@ -50,4 +51,11 @@ public class WebbitAdapters {
         message.binary(binary);
         return message;
     }
+    
+    public static WebbitEventSourceConnection adaptConnection(EventSourceConnection wConnection,
+            WebbitRequestAdapter request) {
+        return new WebbitEventSourceConnection(wConnection, request);
+    }
+
+
 }

@@ -19,7 +19,7 @@ public abstract class WebSocket extends WebSocketRoute {
     }
 
     @Override
-    public final void onOpen(WebSocketConnection connection, WebSocketRouteChain chain) {
+    public final void onOpen(WebSocketConnection connection, RouteChain chain) {
         onOpen(connection);
     }
     
@@ -27,7 +27,7 @@ public abstract class WebSocket extends WebSocketRoute {
     }
 
     @Override
-    public final void onClose(WebSocketConnection connection, WebSocketRouteChain chain) {
+    public final void onClose(WebSocketConnection connection, RouteChain chain) {
         onClose(connection);
     }
     
@@ -35,7 +35,7 @@ public abstract class WebSocket extends WebSocketRoute {
     }
 
     @Override
-    public final void onMessage(WebSocketConnection connection, WebSocketMessage msg, WebSocketRouteChain chain) {
+    public final void onMessage(WebSocketConnection connection, WebSocketMessage msg, RouteChain chain) {
         onMessage(connection, msg);
     }
     
@@ -43,7 +43,7 @@ public abstract class WebSocket extends WebSocketRoute {
     }
 
     @Override
-    public final void onPing(WebSocketConnection connection, WebSocketMessage msg, WebSocketRouteChain chain) {
+    public final void onPing(WebSocketConnection connection, WebSocketMessage msg, RouteChain chain) {
         onPing(connection, msg);
     }
     
@@ -52,7 +52,7 @@ public abstract class WebSocket extends WebSocketRoute {
     }
     
     @Override
-    public final void onPong(WebSocketConnection connection, WebSocketMessage msg, WebSocketRouteChain chain) {
+    public final void onPong(WebSocketConnection connection, WebSocketMessage msg, RouteChain chain) {
         onPong(connection, msg);
     }
     

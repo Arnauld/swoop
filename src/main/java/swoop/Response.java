@@ -63,4 +63,5 @@ public interface Response {
      * zero.
      */
     void discardCookie(String name);
+    
 }

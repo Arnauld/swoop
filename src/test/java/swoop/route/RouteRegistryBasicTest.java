@@ -16,6 +16,7 @@ import org.testng.annotations.Test;
 import swoop.path.Path;
 import swoop.path.PathMatcherSinatraCompiler;
 import swoop.path.Verb;
+import swoop.util.New;
 
 
 public class RouteRegistryBasicTest {
@@ -51,10 +52,19 @@ public class RouteRegistryBasicTest {
         defineAndAddRoute(2, false, "get '/'");
         defineAndAddRoute(3, false, "get '/*'");
         
-        List<RouteMatch> found = registry.findRoutes(p(Verb.Get, "/"));
+        Path path = p(Verb.Get, "/");
+        List<RouteMatch<Route>> found = registry.findRoutes(path);
         
         // TODO this make the test works: refactor the test and create a new one.
-        Routes.throwIfMultipleTargets(found);
+        Routes.throwIfMultipleTargets(path, c(found));
+    }
+
+    // Generic issue...
+    private static List<RouteMatch<?>> c(List<RouteMatch<Route>> found) {
+        List<RouteMatch<?>> l = New.arrayList();
+        for(RouteMatch<Route> r : found)
+            l.add(r);
+        return l;
     }
 
     @Test
@@ -66,9 +76,9 @@ public class RouteRegistryBasicTest {
         defineAndAddRoute(3, false, "get '/'");
         defineAndAddRoute(4, true, "get '/*'");
         
-        List<RouteMatch> found = registry.findRoutes(p(Verb.Get, "/"));
+        List<RouteMatch<Route>> found = registry.findRoutes(p(Verb.Get, "/"));
         assertThat(found.size(), equalTo(4));
-        Iterator<RouteMatch> it = found.iterator();
+        Iterator<RouteMatch<Route>> it = found.iterator();
         assertThat(it.next().getTarget(), sameInstance(routes[0]));
         assertThat(it.next().getTarget(), sameInstance(routes[1]));
         assertThat(it.next().getTarget(), sameInstance(routes[3]));
@@ -85,7 +95,7 @@ public class RouteRegistryBasicTest {
         defineAndAddRoute(3, false, "get '/'");
         defineAndAddRoute(4, true, "get '/*'");
         
-        List<RouteMatch> found = registry.findRoutes(p(Verb.Post, "/"));
+        List<RouteMatch<Route>> found = registry.findRoutes(p(Verb.Post, "/"));
         assertThat(found.size(), equalTo(1));
         assertThat(found.get(0).getTarget(), sameInstance(routes[0]));
     }

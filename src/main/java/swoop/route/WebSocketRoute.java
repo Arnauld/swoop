@@ -1,8 +1,8 @@
 package swoop.route;
 
+import swoop.RouteChain;
 import swoop.WebSocketConnection;
 import swoop.WebSocketMessage;
-import swoop.WebSocketRouteChain;
 import swoop.path.Path;
 
 public abstract class WebSocketRoute implements FilterAware {
@@ -28,23 +28,23 @@ public abstract class WebSocketRoute implements FilterAware {
         return this.path;
     }
 
-    public void onOpen(WebSocketConnection connection, WebSocketRouteChain chain) {
+    public void onOpen(WebSocketConnection connection, RouteChain chain) {
         chain.invokeNext();
     }
 
-    public void onClose(WebSocketConnection connection, WebSocketRouteChain chain) {
+    public void onClose(WebSocketConnection connection, RouteChain chain) {
         chain.invokeNext();
     }
 
-    public void onMessage(WebSocketConnection connection, WebSocketMessage msg, WebSocketRouteChain chain) {
+    public void onMessage(WebSocketConnection connection, WebSocketMessage msg, RouteChain chain) {
         chain.invokeNext();
     }
 
-    public void onPing(WebSocketConnection connection, WebSocketMessage msg, WebSocketRouteChain chain) {
+    public void onPing(WebSocketConnection connection, WebSocketMessage msg, RouteChain chain) {
         chain.invokeNext();
     }
 
-    public void onPong(WebSocketConnection connection, WebSocketMessage msg, WebSocketRouteChain chain) {
+    public void onPong(WebSocketConnection connection, WebSocketMessage msg, RouteChain chain) {
         chain.invokeNext();
     }
 

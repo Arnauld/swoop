@@ -2,6 +2,8 @@ package swoop.server;
 
 public interface SwoopServer {
     
+    Object raw();
+    
     /**
      * Ignites the server listening on the provided port
      * 

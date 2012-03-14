@@ -58,6 +58,11 @@ public class WebbitSwoopServer implements SwoopServer {
     }
     
     @Override
+    public Object raw() {
+        return webServer;
+    }
+    
+    @Override
     public synchronized void ignite(int port) {
         for (SwoopServerListener listener : listeners)
             listener.serverStarting(this);
@@ -72,29 +77,33 @@ public class WebbitSwoopServer implements SwoopServer {
         });
         defineStaticDirs(webServer, routeRegistry);
         defineSwoopWebSocketHandler(webServer, routeRegistry);
+        defineSwoopEventSourceHandler(webServer, routeRegistry);
         defineSwoopHttpHandler(webServer, routeRegistry);
 
-        log.info("Starting server on port {}", port);
+        log.info("Starting server: {}", webServer.getUri());
         Future<? extends WebServer> start = webServer.start();
         try {
             start.get();
-            log.info("Server started: 0.0.0.0:{}", port);
+            log.info("Server started: {}", webServer.getUri());
+            for (SwoopServerListener listener : listeners)
+                listener.serverStarted(this);
         } catch (InterruptedException e) {
             log.warn("Interrupted while starting server", e);
         } catch (ExecutionException e) {
             log.warn("Error while starting server", e);
         }
-
-        for (SwoopServerListener listener : listeners)
-            listener.serverStarted(this);
     }
 
     protected void defineSwoopHttpHandler(WebServer webServer, RouteRegistry routeRegistry) {
         webServer.add(new WebbitSwoopHttpHandler(routeRegistry));
     }
     
-    protected synchronized void defineSwoopWebSocketHandler(WebServer webServer, RouteRegistry routeRegistry) {
+    protected void defineSwoopWebSocketHandler(WebServer webServer, RouteRegistry routeRegistry) {
         webServer.add(new WebbitSwoopWebSocketHandler(routeRegistry));
+    }
+    
+    protected void defineSwoopEventSourceHandler(WebServer webServer, RouteRegistry routeRegistry) {
+        webServer.add(new WebbitSwoopEventSourceHandler(routeRegistry));
     }
 
     protected void defineStaticDirs(WebServer webServer, RouteRegistry routeMatcher) {
