@@ -1,17 +1,19 @@
 package swoop.route;
 
-import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.doAnswer;
+import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
+import org.mockito.Mockito;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -21,7 +23,7 @@ import swoop.util.Multimap;
 import swoop.util.New;
 
 public class RouteChainBasicTest {
-
+    
     private Invoker<RouteMatch<FilterAwareImpl>> invoker;
     private Context context;
     private RouteParameters routeParameters;
@@ -51,7 +53,22 @@ public class RouteChainBasicTest {
     }
 
     @Test
-    public void oneRoute() {
+    public void oneRoute_withoutRouteParametersInContext() {
+        @SuppressWarnings("unchecked")
+        RouteMatch<FilterAwareImpl> routeMatch = mock(RouteMatch.class);
+        when(routeMatch.getRouteParameters()).thenReturn(multimap);
+
+        routeMatches.add(routeMatch);
+        routeChain.invokeNext();
+
+        Mockito.verifyZeroInteractions(routeParameters);
+        verify(invoker).invoke(routeMatch, routeChain);
+    }
+    
+    @Test
+    public void oneRoute_withRouteParametersInContext() {
+        when(context.get(RouteParameters.class)).thenReturn(routeParameters);
+        
         @SuppressWarnings("unchecked")
         RouteMatch<FilterAwareImpl> routeMatch = mock(RouteMatch.class);
         when(routeMatch.getRouteParameters()).thenReturn(multimap);
@@ -64,130 +81,74 @@ public class RouteChainBasicTest {
         verify(invoker).invoke(routeMatch, routeChain);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void oneRoute_simulateChaining() {
-        @SuppressWarnings("unchecked")
+        invoker = new RouteMatchCollectorInvoker();
+        routeChain = RouteChainBasic.create(invoker, routeMatches, context);
+        when(context.get(RouteParameters.class)).thenReturn(routeParameters);
+
         RouteMatch<FilterAwareImpl> routeMatch = mock(RouteMatch.class);
         when(routeMatch.getRouteParameters()).thenReturn(multimap);
-
-        doAnswer(invokeNextOnChain()).when(invoker).invoke(routeMatch, routeChain);
 
         routeMatches.add(routeMatch);
         routeChain.invokeNext();
 
         verify(routeParameters).getUnderlying();
         verify(routeParameters).setUnderlying(multimap);
-        verify(invoker).invoke(routeMatch, routeChain);
+        assertThat(getRouteMatchCollected(), contains(routeMatch));
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void twoRoutes_simulateChaining() {
-        @SuppressWarnings("unchecked")
+        invoker = new RouteMatchCollectorInvoker();
+        routeChain = RouteChainBasic.create(invoker, routeMatches, context);
+        
+        when(context.get(RouteParameters.class)).thenReturn(routeParameters);
+
+        Multimap<String,String> multimap1 = New.multiMap();
         RouteMatch<FilterAwareImpl> routeMatch1 = mock(RouteMatch.class);
-        @SuppressWarnings("unchecked")
+        when(routeMatch1.toString()).thenReturn("routeMatch1");
+        assertThat(routeMatch1.equals(routeMatch1), is(true));
+        when(routeMatch1.getRouteParameters()).thenReturn(multimap1);
+        
+        Multimap<String,String> multimap2 = New.multiMap();
         RouteMatch<FilterAwareImpl> routeMatch2 = mock(RouteMatch.class);
+        when(routeMatch2.toString()).thenReturn("routeMatch2");
+        when(routeMatch2.getRouteParameters()).thenReturn(multimap2);
+
         routeMatches.add(routeMatch1);
         routeMatches.add(routeMatch2);
         routeChain.invokeNext();
 
-        doAnswer(invokeNextOnChain()).when(invoker).invoke(routeMatch1, routeChain);
+        assertThat(getRouteMatchCollected(), contains(routeMatch1, routeMatch2));
+        verify(routeParameters, times(2)).setUnderlying(null);
+        verify(routeParameters, times(1)).setUnderlying(multimap1);
+        verify(routeParameters, times(1)).setUnderlying(multimap2);
+    }
 
-        verify(routeParameters, times(2)).setUnderlying(multimap);
-        verify(invoker).invoke(routeMatch1, routeChain);
-        verify(invoker).invoke(routeMatch2, routeChain);
+    protected List<RouteMatch<FilterAwareImpl>> getRouteMatchCollected() {
+        assertThat(invoker, instanceOf(RouteMatchCollectorInvoker.class));
+        return ((RouteMatchCollectorInvoker)invoker).getCollected();
     }
 
     @Test
-    public void multipleRoutes_simulateChaining() {
+    public void multipleRoutes_simulateChaining_withoutRouteParametersInContext() {
+        invoker = new RouteMatchCollectorInvoker();
+        routeChain = RouteChainBasic.create(invoker, routeMatches, context);
         int COUNT = 10;
         for (int i = 0; i < COUNT; i++) {
-            routeMatches.add(mockRouteMatchInvokingNextOnChain());
+            @SuppressWarnings("unchecked")
+            RouteMatch<FilterAwareImpl> routeMatch = mock(RouteMatch.class);
+            when(routeMatch.toString()).thenReturn("routeMatch" + i);
+            routeMatches.add(routeMatch);
         }
 
         // trigger the chain
         routeChain.invokeNext();
 
-        verify(routeParameters, times(COUNT)).setUnderlying(multimap);
-        for (int i = 0; i < COUNT; i++) {
-            verify(invoker).invoke(routeMatches.get(i), routeChain);
-        }
-    }
-
-    private Multimap<String, String> underlyingLastDefined;
-
-    @Test
-    public void twoRoutes_routeParametersIsUpdatedOnEachLink() {
-        // doAnswer(defineAsUnderlyingLastDefined()).when(routeParameters).setUnderlying(Mockito.any(Multimap.class));
-        // when(routeParameters.getUnderlying()).then(returnUnderlyingLastDefined());
-        // Multimap<String, String> multimap1 = New.multiMap();
-        // Multimap<String, String> multimap2 = New.multiMap();
-        //
-        // Route route1 = mock(Route.class);
-        // RouteMatch routeMatch1 = createRouteMatchMock(multimap1, route1);
-        // doAnswer(checkRouteParametersAroundInvokeNext(multimap1)).when(route1).handle(request, response, routeChain);
-        //
-        // Route route2 = mock(Route.class);
-        // RouteMatch routeMatch2 = createRouteMatchMock(multimap2, route2);
-        // doAnswer(checkRouteParametersAroundInvokeNext(multimap2)).when(route2).handle(request, response, routeChain);
-        //
-        // routeMatches.add(routeMatch1);
-        // routeMatches.add(routeMatch2);
-        // routeChain.invokeNext();
-        //
-        // verify(route1).handle(request, response, routeChain);
-        // verify(route2).handle(request, response, routeChain);
-    }
-
-    protected Answer<Object> defineAsUnderlyingLastDefined() {
-        return new Answer<Object>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                underlyingLastDefined = (Multimap<String, String>) invocation.getArguments()[0];
-                return null;
-            }
-        };
-    }
-
-    protected Answer<Multimap<String, String>> returnUnderlyingLastDefined() {
-        return new Answer<Multimap<String, String>>() {
-            @Override
-            public Multimap<String, String> answer(InvocationOnMock invocation) throws Throwable {
-                return underlyingLastDefined;
-            }
-        };
-    }
-
-    protected RouteMatch<FilterAwareImpl> mockRouteMatchInvokingNextOnChain() {
-        @SuppressWarnings("unchecked")
-        RouteMatch<FilterAwareImpl> routeMatch = mock(RouteMatch.class);
-        when(routeMatch.getRouteParameters()).thenReturn(multimap);
-        doAnswer(invokeNextOnChain()).when(invoker).invoke(routeMatch, routeChain);
-        return routeMatch;
-    }
-
-    protected Answer<Object> checkRouteParametersAroundInvokeNext(final Multimap<String, String> multimap) {
-        return new Answer<Object>() {
-            public Object answer(InvocationOnMock invocation) {
-                Object[] args = invocation.getArguments();
-                RouteChain chain = (RouteChain) args[2];
-                assertThat("Map not updated @before", multimap, sameInstance(underlyingLastDefined));
-                chain.invokeNext();
-                assertThat("Map not updated @after", multimap, sameInstance(underlyingLastDefined));
-                return null;
-            }
-        };
-    }
-
-    protected static Answer<Object> invokeNextOnChain() {
-        return new Answer<Object>() {
-            public Object answer(InvocationOnMock invocation) {
-                Object[] args = invocation.getArguments();
-                RouteChain chain = (RouteChain) args[2];
-                chain.invokeNext();
-                return null;
-            }
-        };
+        assertThat(getRouteMatchCollected(), equalTo((List<RouteMatch<FilterAwareImpl>>)routeMatches));
     }
 
     private static class FilterAwareImpl implements FilterAware {
@@ -196,5 +157,19 @@ public class RouteChainBasicTest {
             return false;
         }
 
+    }
+    
+    class RouteMatchCollectorInvoker implements Invoker<RouteMatch<FilterAwareImpl>> {
+        private List<RouteMatch<FilterAwareImpl>> matchesInvoked = New.arrayList();
+        
+        @Override
+        public void invoke(RouteMatch<FilterAwareImpl> value, RouteChain chain) {
+            matchesInvoked.add(value);
+            chain.invokeNext();
+        }
+
+        public List<RouteMatch<FilterAwareImpl>> getCollected() {
+            return matchesInvoked;
+        }
     }
 }

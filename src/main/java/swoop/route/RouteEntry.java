@@ -44,4 +44,8 @@ public class RouteEntry<T extends FilterAware> {
         return path.getVerb().matches(requestPath.getVerb());
     }
     
+    @Override
+    public String toString() {
+        return "RouteEntry[path: " + path + ", target: " + target + "]";
+    }
 }

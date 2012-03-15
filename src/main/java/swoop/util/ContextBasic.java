@@ -7,7 +7,7 @@ public class ContextBasic implements Context {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T adaptTo(Class<T> type) {
+    public <T> T get(Class<T> type) {
         T value = (T)content.get(type);
         if(value!=null)
             return value;

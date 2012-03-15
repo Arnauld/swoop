@@ -38,5 +38,10 @@ public class RouteMatch<R extends FilterAware> {
             params = matchEntry.extractParameters(requestedPath);
         return params;
     }
+    
+    @Override
+    public String toString() {
+        return "RouteMatch[requestedPath: " + requestedPath + ", entry:" + matchEntry + "]";
+    }
 
 }

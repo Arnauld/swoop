@@ -39,8 +39,10 @@ public class WebbitSwoopHttpHandler implements HttpHandler {
     public void handleHttpRequest(HttpRequest httpRequest, HttpResponse httpResponse, HttpControl control)
             throws Exception {
         Path path = Webbits.getPath(httpRequest);
+        logger.debug("Analysing path <{}>", path);
         List<RouteMatch<Route>> matches = routeRegistry.findRoutes(path);
         if (matches.isEmpty()) {
+            logger.debug("Path <{}> does not belongs to http handler", path);
             control.nextHandler();
             return;
         }

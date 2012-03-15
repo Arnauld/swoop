@@ -107,9 +107,9 @@ public class WebbitSwoopStaticFileHandler implements HttpHandler {
         
         @Override
         public void writeResource(String path, File dir, Context context) {
-            HttpRequest request = context.adaptTo(HttpRequest.class);
-            HttpResponse response = context.adaptTo(HttpResponse.class);
-            HttpControl control = context.adaptTo(HttpControl.class);
+            HttpRequest request = context.get(HttpRequest.class);
+            HttpResponse response = context.get(HttpResponse.class);
+            HttpControl control = context.get(HttpControl.class);
             ioThread.execute(new FileWorker(dir, path, request, response, control));
         }
 

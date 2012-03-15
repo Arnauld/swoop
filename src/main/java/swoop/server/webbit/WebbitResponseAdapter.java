@@ -134,7 +134,7 @@ public class WebbitResponseAdapter implements Response {
             response.status(StatusCode.MOVED_TEMPORARILY);
         } else {
             if (body != null)
-                response.write(body);
+                response.content(body);
         }
         response.end();
     }

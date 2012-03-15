@@ -32,7 +32,7 @@ public abstract class ResourceContent extends Route {
         String path = (String)request.data(RESOURCE_PATH);
         if(path==null)
             path = request.uri();
-        ResourceHandler resourceHandler = routeChain.context().adaptTo(ResourceHandler.class);
+        ResourceHandler resourceHandler = routeChain.context().get(ResourceHandler.class);
         resourceHandler.writeResource(path, dir, routeChain.context());
     }
 

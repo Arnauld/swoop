@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import swoop.RouteChain;
 import swoop.util.Context;
 import swoop.util.Multimap;
+import swoop.util.Objects;
 
 public class RouteChainBasic<R extends FilterAware> implements RouteChain {
 
@@ -45,10 +46,13 @@ public class RouteChainBasic<R extends FilterAware> implements RouteChain {
             return;
         }
 
-        UnderlyingModifier underlyingModifier = new UnderlyingModifier(context.adaptTo(RouteParameters.class));
+        UnderlyingModifier underlyingModifier = new UnderlyingModifier(context.get(RouteParameters.class));
         try {
-            RouteMatch<R> routeMatch = links.get(index++);
-            underlyingModifier.changeWith(routeMatch.getRouteParameters());
+            RouteMatch<R> routeMatch = links.get(index);
+            Multimap<String, String> parametersMap = routeMatch.getRouteParameters();
+            logger.debug("Invoking #{}/{} link in chain with route parameters {} ~ {}", Objects.o(index+1, links.size(), parametersMap, routeMatch));
+            underlyingModifier.changeWith(parametersMap);
+            index++;
             invoker.invoke(routeMatch, this);
         } finally {
             underlyingModifier.revert();
@@ -73,7 +77,6 @@ public class RouteChainBasic<R extends FilterAware> implements RouteChain {
                 return;
             routeParameters.setUnderlying(previous);
         }
-        
     }
 
 }
