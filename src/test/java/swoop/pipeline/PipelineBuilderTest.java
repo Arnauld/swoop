@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 import swoop.util.ContextBasic;
 
 public class PipelineBuilderTest {
-    
+
     private static Logger logger = LoggerFactory.getLogger(PipelineBuilderTest.class);
 
     @Test
@@ -49,7 +49,7 @@ public class PipelineBuilderTest {
                 .handler(new Downstream("prepare")) //
                 .handler(new Upstream("gzip")) //
                 .handler(new Target("bob"))//
-                ;
+        ;
 
         builder.buildPipeline().invokeNext();
         latch.await();
@@ -57,7 +57,7 @@ public class PipelineBuilderTest {
         String string = context.get(StringBuilder.class).toString();
         assertThat(string, equalTo("<time><auth><prepare><bob><<bob>></bob></gzip></time>"));
     }
-    
+
     @Test
     public void usecase_threaded_withAsyncJob() throws InterruptedException {
         ExecutorService backgroundExecutor = Executors.newFixedThreadPool(2);
@@ -73,7 +73,7 @@ public class PipelineBuilderTest {
                 .handler(new Downstream("prepare")) //
                 .handler(new Upstream("gzip")) //
                 .handler(new Async("bob", backgroundExecutor))//
-                ;
+        ;
 
         builder.buildPipeline().invokeNext();
         latch.await();
@@ -81,10 +81,11 @@ public class PipelineBuilderTest {
         String string = context.get(StringBuilder.class).toString();
         assertThat(string, equalTo("<time><auth><prepare><<bob>></gzip></time>"));
     }
-    
+
     public static class Async implements PipelineTargetHandler {
         private String token;
         private Executor backgroundThread;
+
         public Async(String token, Executor backgroundThread) {
             super();
             this.token = token;
