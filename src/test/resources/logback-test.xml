@@ -11,6 +11,7 @@
 	<logger name="swoop.route" level="debug" />
 	<logger name="swoop.server" level="debug" />
 	<logger name="swoop.support" level="info" />
+	<logger name="swoop.pipeline" level="info" />
 	
 	<logger name="samples.quiz" level="debug" />
 	<logger name="samples.quiz.service.QuizServiceInMemory" level="warn" />

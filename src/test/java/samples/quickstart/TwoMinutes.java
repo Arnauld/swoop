@@ -1,12 +1,17 @@
 package samples.quickstart;
 
-import static swoop.Swoop.*;
+import static swoop.Swoop.around;
+import static swoop.Swoop.get;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Random;
 
-import swoop.*;
+import swoop.Action;
+import swoop.Filter;
+import swoop.Request;
+import swoop.Response;
+import swoop.RouteChain;
 
 public class TwoMinutes {
 
@@ -46,4 +51,5 @@ public class TwoMinutes {
             }
         });
     }
+    
 }

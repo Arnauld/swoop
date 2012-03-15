@@ -18,7 +18,7 @@ public abstract class Action extends Route {
     }
     
     @Override
-    public final void handle(Request request, Response response, RouteChain routeChain) {
+    public void handle(Request request, Response response, RouteChain routeChain) {
         handle(request, response);
     }
     
