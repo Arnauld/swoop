@@ -14,22 +14,23 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import swoop.path.Path;
-import swoop.path.PathMatcher;
+import swoop.path.PathPatternMatcher;
 import swoop.path.Verb;
+import swoop.path.VerbMatcher;
 
 public class RouteEntryTest {
     private FilterAwareImpl impl;
-    private PathMatcher pathMatcher;
-    private Path path;
+    private PathPatternMatcher pathMatcher;
     private RouteEntry<FilterAwareImpl> entry;
+    private VerbMatcher verbMatcher;
 
     @BeforeMethod
     public void setUp() {
-        path = mock(Path.class);
-        pathMatcher = mock(PathMatcher.class);
+        verbMatcher = mock(VerbMatcher.class);
+        pathMatcher = mock(PathPatternMatcher.class);
         impl = new FilterAwareImpl();
         //
-        entry = new RouteEntry<FilterAwareImpl>(path, pathMatcher, impl) {
+        entry = new RouteEntry<FilterAwareImpl>(verbMatcher, pathMatcher, impl) {
         };
     }
 
@@ -47,16 +48,20 @@ public class RouteEntryTest {
     }
 
     @Test(dataProvider = "matchesData")
-    public void matches(Verb entryVerb, final String entryPath, Path testedPath, boolean expected) {
+    public void matches(final Verb entryVerb, final String entryPath, Path testedPath, boolean expected) {
         when(pathMatcher.matches(Mockito.anyString())).then(new Answer<Boolean>() {
             @Override
             public Boolean answer(InvocationOnMock invocation) throws Throwable {
                 return entryPath.equals((String) invocation.getArguments()[0]);
             }
         });
-        when(path.getVerb()).thenReturn(entryVerb);
-        when(path.getPathPattern()).thenReturn(entryPath);
-        assertThat(entry.matches(testedPath), is(expected));
+        when(verbMatcher.matches(Mockito.any(Verb.class))).then(new Answer<Boolean>() {
+            @Override
+            public Boolean answer(InvocationOnMock invocation) throws Throwable {
+                return entryVerb == ((Verb) invocation.getArguments()[0]);
+            }
+        });
+        assertThat(""+testedPath+"? " + expected, entry.matches(testedPath), is(expected));
     }
 
     @DataProvider
@@ -66,7 +71,6 @@ public class RouteEntryTest {
                 { Verb.Get, "some", new Path(Verb.Get, "some"), true }, //
                 { Verb.Put, "some", new Path(Verb.Put, "some"), true }, //
                 { Verb.Get, "sume", new Path(Verb.Get, "some"), false }, //
-                { Verb.Any, "some", new Path(Verb.Get, "some"), true }, //
                 { Verb.Post, "some", new Path(Verb.Get, "some"), false }, //
         };
     }

@@ -10,6 +10,7 @@ import swoop.Filter;
 import swoop.WebSocket;
 import swoop.path.Path;
 import swoop.path.Verb;
+import swoop.path.VerbMatcher;
 
 /**
  * Route registry
@@ -28,7 +29,7 @@ public interface RouteRegistry {
      * @param route
      * @param target
      */
-    void addWebSocket(Path path, WebSocketRoute target);
+    void addWebSocket(VerbMatcher verbMatcher, String pathPattern, WebSocketRoute target);
     
     /**
      * Parses, validates and adds a route to handle a {@link EventSource}
@@ -38,7 +39,7 @@ public interface RouteRegistry {
      * @param route
      * @param target
      */
-    void addEventSource(Path path, EventSourceRoute target);
+    void addEventSource(VerbMatcher verbMatcher, String pathPattern, EventSourceRoute target);
 
     /**
      * Parses, validates and adds a route
@@ -60,7 +61,7 @@ public interface RouteRegistry {
      * @param route
      * @param target
      */
-    void addRoute(Path route, Route target);
+    void addRoute(VerbMatcher verbMatcher, String pathPattern, Route target);
 
     /**
      * Define a directory containing static content.
@@ -100,6 +101,11 @@ public interface RouteRegistry {
     List<RouteMatch<WebSocketRoute>> findWebSocketRoutes(Path requestedPath);
     
     /**
+     * 
+     */
+    boolean hasWebSocketRoutes(String pathPattern);
+    
+    /**
      * Finds all routes (filters and target) matching the requested route path
      * 
      * If more than one target ({@link EventSource}) is found an exception should be thrown.
@@ -110,7 +116,13 @@ public interface RouteRegistry {
     List<RouteMatch<EventSourceRoute>> findEventSourceRoutes(Path requestedPath);
 
     /**
+     * 
+     */
+    boolean hasEventSourceRoutes(String pathPattern);
+
+    /**
      * Clear all routes
      */
     void clearRoutes();
+
 }

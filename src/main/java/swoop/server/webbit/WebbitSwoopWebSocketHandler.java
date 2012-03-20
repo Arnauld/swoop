@@ -46,9 +46,7 @@ public class WebbitSwoopWebSocketHandler implements WebSocketHandler, HttpHandle
 
         // websocket is initiated by a 'GET'...
         if (path.getVerb() == Verb.Get) {
-            path = path.withVerb(Verb.WebSocket);
-            List<RouteMatch<WebSocketRoute>> matches = routeRegistry.findWebSocketRoutes(path);
-            if (!matches.isEmpty()) {
+            if (routeRegistry.hasWebSocketRoutes(path.getPathPattern())) {
                 logger.debug("Upgrading path <{}> to websocket", path);
                 control.upgradeToWebSocketConnection(this);
                 return;
@@ -61,13 +59,13 @@ public class WebbitSwoopWebSocketHandler implements WebSocketHandler, HttpHandle
     @Override
     public void onOpen(WebSocketConnection connection) throws Throwable {
         logger.debug("OnOpen <{}>", connection.httpRequest().uri());
-        dispatch(connection, WebSocketInvoker.Code.Open, new RouteParameters(), null);
+        dispatch(connection, Verb.WebSocketOpen, new RouteParameters(), null);
     }
 
     @Override
     public void onClose(WebSocketConnection connection) throws Throwable {
         logger.debug("onClose <{}>", connection.httpRequest().uri());
-        dispatch(connection, WebSocketInvoker.Code.Close, new RouteParameters(), null);
+        dispatch(connection,Verb.WebSocketClose, new RouteParameters(), null);
     }
 
     @Override
@@ -75,7 +73,7 @@ public class WebbitSwoopWebSocketHandler implements WebSocketHandler, HttpHandle
         logger.debug("onMessage <{}>", connection.httpRequest().uri());
         RouteParameters routeParameters = new RouteParameters();
         WebSocketMessage message = adaptMessage(msg, routeParameters);
-        dispatch(connection, WebSocketInvoker.Code.Message, routeParameters, message);
+        dispatch(connection, Verb.WebSocketMessage, routeParameters, message);
     }
 
     @Override
@@ -83,7 +81,7 @@ public class WebbitSwoopWebSocketHandler implements WebSocketHandler, HttpHandle
         logger.debug("onMessage <{}>", connection.httpRequest().uri());
         RouteParameters routeParameters = new RouteParameters();
         WebSocketMessage message = adaptMessage(msg, routeParameters);
-        dispatch(connection, WebSocketInvoker.Code.Message, routeParameters, message);
+        dispatch(connection, Verb.WebSocketMessage, routeParameters, message);
     }
 
     @Override
@@ -91,7 +89,7 @@ public class WebbitSwoopWebSocketHandler implements WebSocketHandler, HttpHandle
         logger.debug("onPing <{}>", connection.httpRequest().uri());
         RouteParameters routeParameters = new RouteParameters();
         WebSocketMessage message = adaptMessage(msg, routeParameters);
-        dispatch(connection, WebSocketInvoker.Code.Ping, routeParameters, message);
+        dispatch(connection, Verb.WebSocketPing, routeParameters, message);
     }
 
     @Override
@@ -99,13 +97,13 @@ public class WebbitSwoopWebSocketHandler implements WebSocketHandler, HttpHandle
         logger.debug("onPong <{}>", connection.httpRequest().uri());
         RouteParameters routeParameters = new RouteParameters();
         WebSocketMessage message = adaptMessage(msg, routeParameters);
-        dispatch(connection, WebSocketInvoker.Code.Ping, routeParameters, message);
+        dispatch(connection, Verb.WebSocketPing, routeParameters, message);
     }
 
-    protected void dispatch(WebSocketConnection wConnection, WebSocketInvoker.Code code,
+    protected void dispatch(WebSocketConnection wConnection, Verb verb,
             RouteParameters routeParameters, WebSocketMessage msg) {
         HttpRequest httpRequest = wConnection.httpRequest();
-        Path path = Webbits.getPath(httpRequest).withVerb(Verb.WebSocket);
+        Path path = Webbits.getPath(httpRequest).withVerb(verb);
 
         List<RouteMatch<WebSocketRoute>> matches = routeRegistry.findWebSocketRoutes(path);
         logger.debug("Dispatching webSocket call <{}> through a chain of #{} link(s) (filter and target)", wConnection
@@ -117,7 +115,7 @@ public class WebbitSwoopWebSocketHandler implements WebSocketHandler, HttpHandle
                 .register(RouteParameters.class, routeParameters);
 
         try {
-            Invoker<RouteMatch<WebSocketRoute>> invoker = new WebSocketInvoker(code, connection, msg);
+            Invoker<RouteMatch<WebSocketRoute>> invoker = new WebSocketInvoker(verb, connection, msg);
             RouteChainBasic.create(invoker, matches, context).invokeNext();
         } catch (HaltException he) {
             logger.info("Processing halted", he);

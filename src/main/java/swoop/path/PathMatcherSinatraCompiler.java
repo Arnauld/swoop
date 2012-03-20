@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.webbitserver.helpers.Hex;
 
 import swoop.SwoopException;
 import swoop.util.Gsub.Replacement;
@@ -62,7 +62,7 @@ public class PathMatcherSinatraCompiler implements PathMatcherCompiler {
     }
 
     protected static String utf8Hex(String str) throws UnsupportedEncodingException {
-        return Hex.toHex(str.getBytes("UTF8"));
+        return Hex.encodeHexString(str.getBytes("UTF8"));
     }
 
     protected static String escape(String enc) {
@@ -113,7 +113,7 @@ public class PathMatcherSinatraCompiler implements PathMatcherCompiler {
     }
 
     @Override
-    public PathMatcher compile(String routeExpr) {
+    public PathPatternMatcher compile(String routeExpr) {
         final List<String> keys = new ArrayList<String>();
         String encoded = gsub(toEncodePattern, routeExpr, encoded());
         String pattern = gsub(paramsPattern, encoded, keyCollector(keys));

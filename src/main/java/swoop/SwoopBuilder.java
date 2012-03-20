@@ -1,7 +1,7 @@
 package swoop;
 
-import swoop.path.Path;
 import swoop.path.Verb;
+import swoop.path.VerbMatchers;
 import swoop.route.Route;
 import swoop.route.RouteRegistry;
 import swoop.route.RouteRegistryFactory;
@@ -198,7 +198,7 @@ public class SwoopBuilder {
      */
     public void webSocket(WebSocket webSocket) {
         init();
-        this.routeRegistry.addWebSocket(new Path(Verb.WebSocket, webSocket.getPath()), webSocket);
+        this.routeRegistry.addWebSocket(VerbMatchers.webSocket, webSocket.getPath(), webSocket);
     }
 
     /**
@@ -207,7 +207,7 @@ public class SwoopBuilder {
      */
     public void aroundWebSocket(WebSocketFilter filter) {
         init();
-        this.routeRegistry.addWebSocket(new Path(Verb.WebSocket, filter.getPath()), filter);
+        this.routeRegistry.addWebSocket(VerbMatchers.webSocket, filter.getPath(), filter);
     }
 
     /**
@@ -230,7 +230,7 @@ public class SwoopBuilder {
      */
     public void eventSource(EventSource eventSource) {
         init();
-        this.routeRegistry.addEventSource(new Path(Verb.EventSource, eventSource.getPath()), eventSource);
+        this.routeRegistry.addEventSource(VerbMatchers.eventSource, eventSource.getPath(), eventSource);
     }
 
     /**
@@ -239,7 +239,7 @@ public class SwoopBuilder {
      */
     public void aroundEventSource(EventSourceFilter filter) {
         init();
-        this.routeRegistry.addEventSource(new Path(Verb.EventSource, filter.getPath()), filter);
+        this.routeRegistry.addEventSource(VerbMatchers.eventSource, filter.getPath(), filter);
     }
 
     /**
@@ -247,7 +247,7 @@ public class SwoopBuilder {
      */
     private void addFilter(Filter filter) {
         init();
-        this.routeRegistry.addRoute(new Path(filter.getApplyOn(), filter.getPath()), filter);
+        this.routeRegistry.addRoute(filter.getApplyOn(), filter.getPath(), filter);
     }
 
     /**
@@ -256,7 +256,7 @@ public class SwoopBuilder {
      */
     private void addRoute(Verb verb, Route route) {
         init();
-        this.routeRegistry.addRoute(new Path(verb, route.getPath()), route);
+        this.routeRegistry.addRoute(VerbMatchers.on(verb), route.getPath(), route);
     }
 
     private synchronized final void init() {

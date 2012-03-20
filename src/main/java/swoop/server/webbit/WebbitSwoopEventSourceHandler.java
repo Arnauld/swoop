@@ -42,10 +42,7 @@ public class WebbitSwoopEventSourceHandler implements EventSourceHandler, HttpHa
 
         // eventsource is initiated by a 'GET'...
         if (path.getVerb() == Verb.Get) {
-            path = path.withVerb(Verb.EventSource);
-            List<RouteMatch<EventSourceRoute>> matches = //
-            routeRegistry.findEventSourceRoutes(path);
-            if (!matches.isEmpty()) {
+            if (routeRegistry.hasEventSourceRoutes(path.getPathPattern())) {
                 logger.debug("Upgrading path <{}> to eventsource", path);
                 control.upgradeToEventSourceConnection(this);
                 return;
@@ -58,19 +55,19 @@ public class WebbitSwoopEventSourceHandler implements EventSourceHandler, HttpHa
     @Override
     public void onOpen(EventSourceConnection connection) throws Exception {
         logger.debug("OnOpen <{}>", connection.httpRequest().uri());
-        dispatch(connection, EventSourceInvoker.Code.Open, new RouteParameters());
+        dispatch(connection, Verb.EventSourceOpen, new RouteParameters());
     }
 
     @Override
     public void onClose(EventSourceConnection connection) throws Exception {
         logger.debug("onClose <{}>", connection.httpRequest().uri());
-        dispatch(connection, EventSourceInvoker.Code.Close, new RouteParameters());
+        dispatch(connection, Verb.EventSourceClose, new RouteParameters());
     }
 
-    protected void dispatch(EventSourceConnection wConnection, EventSourceInvoker.Code code,
+    protected void dispatch(EventSourceConnection wConnection, Verb verb,
             RouteParameters routeParameters) {
         HttpRequest httpRequest = wConnection.httpRequest();
-        Path path = Webbits.getPath(httpRequest).withVerb(Verb.EventSource);
+        Path path = Webbits.getPath(httpRequest).withVerb(verb);
 
         List<RouteMatch<EventSourceRoute>> matches = routeRegistry.findEventSourceRoutes(path);
         logger.debug("Dispatching EventSource call <{}> through a chain of #{} link(s) (filter and target)",
@@ -82,7 +79,7 @@ public class WebbitSwoopEventSourceHandler implements EventSourceHandler, HttpHa
                 .register(RouteParameters.class, routeParameters);
 
         try {
-            RouteChainBasic.create(new EventSourceInvoker(code, connection), matches, context).invokeNext();
+            RouteChainBasic.create(new EventSourceInvoker(verb, connection), matches, context).invokeNext();
         } catch (HaltException he) {
             logger.info("Processing halted", he);
         } catch (RedirectException re) {

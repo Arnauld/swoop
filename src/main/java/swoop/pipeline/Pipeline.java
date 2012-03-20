@@ -1,12 +1,30 @@
 package swoop.pipeline;
 
-import swoop.util.Context;
-import swoop.util.HasDataParameters;
 
-public interface Pipeline extends HasDataParameters, Context {
-    
+public interface Pipeline {
+
     /**
      * 
      */
     void invokeNext();
+
+    /**
+     * 
+     */
+    <T> T get(Class<T> type);
+
+    /**
+     * 
+     */
+    <T> Pipeline with(Class<T> type, T value);
+    
+    /**
+     * 
+     */
+    <T> Pipeline with(T value);
+    
+    /**
+     * 
+     */
+    void execute(Runnable runnable);
 }

@@ -3,32 +3,31 @@ package swoop.route;
 import swoop.RouteChain;
 import swoop.WebSocketConnection;
 import swoop.WebSocketMessage;
+import swoop.path.Verb;
 
 public class WebSocketInvoker implements Invoker<RouteMatch<WebSocketRoute>> {
-    public enum Code {
-        Open, Close, Message, Ping, Pong;
-    }
-
-    private final Code code;
+    private final Verb verb;
     private final WebSocketConnection connection;
     private final WebSocketMessage message;
 
-    public WebSocketInvoker(Code code, WebSocketConnection connection, WebSocketMessage message) {
+    public WebSocketInvoker(Verb verb, WebSocketConnection connection, WebSocketMessage message) {
         super();
-        switch (code) {
-            case Open:
-            case Close:
+        switch (verb) {
+            case WebSocketOpen:
+            case WebSocketClose:
                 if (message != null)
-                    throw new IllegalArgumentException("Message must be null for " + code + " mode");
+                    throw new IllegalArgumentException("Message must be null for " + verb + " mode");
                 break;
-            case Message:
-            case Ping:
-            case Pong:
+            case WebSocketMessage:
+            case WebSocketPing:
+            case WebSocketPong:
                 if (message == null)
-                    throw new IllegalArgumentException("Message cannot be null for " + code + " mode");
+                    throw new IllegalArgumentException("Message cannot be null for " + verb + " mode");
                 break;
+            default:
+                throw new IllegalArgumentException(verb + " is not an websocket one");
         }
-        this.code = code;
+        this.verb = verb;
         this.connection = connection;
         this.message = message;
     }
@@ -40,20 +39,20 @@ public class WebSocketInvoker implements Invoker<RouteMatch<WebSocketRoute>> {
      */
     @Override
     public void invoke(RouteMatch<WebSocketRoute> routeMatch, RouteChain chain) {
-        switch (code) {
-            case Open:
+        switch (verb) {
+            case WebSocketOpen:
                 routeMatch.getTarget().onOpen(connection, chain);
                 break;
-            case Close:
+            case WebSocketClose:
                 routeMatch.getTarget().onClose(connection, chain);
                 break;
-            case Message:
+            case WebSocketMessage:
                 routeMatch.getTarget().onMessage(connection, message, chain);
                 break;
-            case Ping:
+            case WebSocketPing:
                 routeMatch.getTarget().onPing(connection, message, chain);
                 break;
-            case Pong:
+            case WebSocketPong:
                 routeMatch.getTarget().onPong(connection, message, chain);
                 break;
         }

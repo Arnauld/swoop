@@ -16,7 +16,7 @@ import swoop.util.Multimap;
 import swoop.util.New;
 import swoop.util.Objects;
 
-public class RegexPathMatcher implements PathMatcher {
+public class RegexPathMatcher implements PathPatternMatcher {
 
     private Logger log = LoggerFactory.getLogger(RegexPathMatcher.class);
 
