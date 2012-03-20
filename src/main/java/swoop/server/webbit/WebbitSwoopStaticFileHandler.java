@@ -59,7 +59,6 @@ public class WebbitSwoopStaticFileHandler implements HttpHandler {
 
         // static is initiated by a 'GET'...
         if (path.getVerb() == Verb.Get) {
-            path = path.withVerb(Verb.StaticContent);
             if (dispatch(path, request, response))
                 return;
         }

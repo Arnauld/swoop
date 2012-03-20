@@ -1,5 +1,5 @@
 package swoop.path;
 
 public interface PathMatcherCompiler {
-    PathMatcher compile(String uriExpr);
+    PathPatternMatcher compile(String uriExpr);
 }

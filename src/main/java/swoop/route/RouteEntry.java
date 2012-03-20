@@ -1,21 +1,23 @@
 package swoop.route;
 
 import swoop.path.Path;
-import swoop.path.PathMatcher;
+import swoop.path.PathPatternMatcher;
+import swoop.path.Verb;
+import swoop.path.VerbMatcher;
 import swoop.util.Multimap;
 
 public class RouteEntry<T extends FilterAware> {
     
-    public static <T extends FilterAware> RouteEntry<T> create(Path path, PathMatcher pathMatcher, T target) {
-        return new RouteEntry<T>(path, pathMatcher, target);
+    public static <T extends FilterAware> RouteEntry<T> create(VerbMatcher verbMatcher, PathPatternMatcher pathMatcher, T target) {
+        return new RouteEntry<T>(verbMatcher, pathMatcher, target);
     }
     
-    private final Path path;
-    private final PathMatcher pathMatcher;
+    private final VerbMatcher verbMatcher;
+    private final PathPatternMatcher pathMatcher;
     private final T target;
-    public RouteEntry(Path path, PathMatcher pathMatcher, T target) {
+    public RouteEntry(VerbMatcher verbMatcher, PathPatternMatcher pathMatcher, T target) {
         super();
-        this.path = path;
+        this.verbMatcher = verbMatcher;
         this.pathMatcher = pathMatcher;
         this.target = target;
     }
@@ -33,19 +35,19 @@ public class RouteEntry<T extends FilterAware> {
     }
 
     public boolean matches(Path requestPath) {
-        return verbMatches(requestPath) && pathMatches(requestPath);
+        return verbMatches(requestPath.getVerb()) && pathMatches(requestPath.getPathPattern());
     }
 
-    protected boolean pathMatches(Path requestPath) {
-        return pathMatcher.matches(requestPath.getPathPattern());
+    public boolean pathMatches(String pathPattern) {
+        return pathMatcher.matches(pathPattern);
     }
 
-    protected boolean verbMatches(Path requestPath) {
-        return path.getVerb().matches(requestPath.getVerb());
+    protected boolean verbMatches(Verb verb) {
+        return verbMatcher.matches(verb);
     }
     
     @Override
     public String toString() {
-        return "RouteEntry[path: " + path + ", target: " + target + "]";
+        return "RouteEntry[verbMatcher: " + verbMatcher + ", target: " + target + "]";
     }
 }

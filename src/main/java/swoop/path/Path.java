@@ -3,6 +3,29 @@ package swoop.path;
 public class Path {
     public static final String ALL_PATHS = "*";
     public static final char SINGLE_QUOTE = '\'';
+    
+    public static String verbPart(String route) {
+        int singleQuoteBeg = route.indexOf(SINGLE_QUOTE);
+        if(singleQuoteBeg<0) {
+            return route;
+        }
+        else {
+            return route.substring(0, singleQuoteBeg).trim();
+        }
+    }
+    
+    public static String pathPart(String route) {
+        int singleQuoteBeg = route.indexOf(SINGLE_QUOTE);
+        if(singleQuoteBeg<0) {
+           return ALL_PATHS;
+        }
+        else {
+            int singleQuoteEnd = route.indexOf(SINGLE_QUOTE, singleQuoteBeg+1);
+            if(singleQuoteEnd<0)
+                throw new InvalidPathException("Unbalanced quotes for route: <" + route + ">");
+            return route.substring(singleQuoteBeg + 1, singleQuoteEnd).trim();
+        }
+    }
 
     public static Path parse(String route) {
         return new Path(route);
@@ -19,18 +42,8 @@ public class Path {
         if(route==null)
             throw new IllegalArgumentException("Missing route");
         
-        int singleQuoteBeg = route.indexOf(SINGLE_QUOTE);
-        if(singleQuoteBeg<0) {
-            this.verb = Verb.lookup(route.trim());
-            this.pathPattern = ALL_PATHS;
-        }
-        else {
-            int singleQuoteEnd = route.indexOf(SINGLE_QUOTE, singleQuoteBeg+1);
-            if(singleQuoteEnd<0)
-                throw new InvalidPathException("Unbalanced quotes for route: <" + route + ">");
-            this.verb = Verb.lookup(route.substring(0, singleQuoteBeg).trim());
-            this.pathPattern = route.substring(singleQuoteBeg + 1, singleQuoteEnd).trim();
-        }
+        this.verb = Verb.lookup(verbPart(route));
+        this.pathPattern = pathPart(route);
         if(verb==null)
             throw new InvalidPathException("Invalid HTTP method part from route: <" + route + ">");
     }

@@ -3,83 +3,133 @@ package swoop.pipeline;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import swoop.util.ContextBasic;
+import swoop.util.New;
 
 public class PipelineBuilderTest {
 
     private static Logger logger = LoggerFactory.getLogger(PipelineBuilderTest.class);
+    private List<PathMatcher> matchers;
 
+    @BeforeMethod
+    public void setUp () {
+        matchers = New.arrayList();
+    }
+    
     @Test
     public void usecase_notThreaded() {
         PipelineBuilder builder = new PipelineBuilder();
-        ContextBasic context = new ContextBasic().register(StringBuilder.class, new StringBuilder());
-        builder.context(context) //
-                .handler(new Filter("time")) //
-                .handler(new Downstream("auth")) //
-                .handler(new Downstream("prepare")) //
-                .handler(new Upstream("gzip")) //
-                .handler(new Target("bob"));
+        builder.handler(e(new Filter("time"))) //
+                .handler(e(new Downstream("auth"))) //
+                .handler(e(new Downstream("prepare"))) //
+                .handler(e(new Upstream("gzip"))) //
+                .handler(e(new Target("bob")))//
+        ;
 
-        builder.buildPipeline().invokeNext();
+        Pipeline pipeline = builder.buildPipeline().with(StringBuilder.class, new StringBuilder());
+        pipeline.invokeNext();
 
-        String string = context.get(StringBuilder.class).toString();
+        String string = pipeline.get(StringBuilder.class).toString();
         assertThat(string, equalTo("<time><auth><prepare><bob><<bob>></bob></gzip></time>"));
+    }
+
+    private HandlerEntry e(Handler target) {
+        return new HandlerEntry(pathMatcherMock(), target);
+    }
+
+    private PathMatcher pathMatcherMock() {
+        PathMatcher pathMatcher = Mockito.mock(PathMatcher.class);
+        matchers.add(pathMatcher);
+        return pathMatcher;
     }
 
     @Test
     public void usecase_threaded() throws InterruptedException {
-        ContextBasic context = new ContextBasic().register(StringBuilder.class, new StringBuilder());
         CountDownLatch latch = new CountDownLatch(1);
 
         PipelineBuilder builder = new PipelineBuilder();
-        builder.context(context) //
-                .executor(Pipelines.threadedExecutor())//
-                .handler(new UpstreamLatch(latch))//
-                .handler(new Filter("time")) //
-                .handler(new Downstream("auth")) //
-                .handler(new Downstream("prepare")) //
-                .handler(new Upstream("gzip")) //
-                .handler(new Target("bob"))//
+        builder.executor(Pipelines.threadedExecutor())//
+                .handler(e(new UpstreamLatch(latch)))//
+                .handler(e(new Filter("time"))) //
+                .handler(e(new Downstream("auth"))) //
+                .handler(e(new Downstream("prepare"))) //
+                .handler(e(new Upstream("gzip"))) //
+                .handler(e(new Target("bob")))//
         ;
 
-        builder.buildPipeline().invokeNext();
+        Pipeline pipeline = builder.buildPipeline().with(StringBuilder.class, new StringBuilder());
+        pipeline.invokeNext();
         latch.await();
 
-        String string = context.get(StringBuilder.class).toString();
+        String string = pipeline.get(StringBuilder.class).toString();
         assertThat(string, equalTo("<time><auth><prepare><bob><<bob>></bob></gzip></time>"));
     }
 
     @Test
     public void usecase_threaded_withAsyncJob() throws InterruptedException {
         ExecutorService backgroundExecutor = Executors.newFixedThreadPool(2);
-        ContextBasic context = new ContextBasic().register(StringBuilder.class, new StringBuilder());
         CountDownLatch latch = new CountDownLatch(1);
 
         PipelineBuilder builder = new PipelineBuilder();
-        builder.context(context) //
-                .executor(Pipelines.threadedExecutor())//
-                .handler(new UpstreamLatch(latch))//
-                .handler(new Filter("time")) //
-                .handler(new Downstream("auth")) //
-                .handler(new Downstream("prepare")) //
-                .handler(new Upstream("gzip")) //
-                .handler(new Async("bob", backgroundExecutor))//
+        builder.executor(Pipelines.threadedExecutor())//
+                .handler(e(new UpstreamLatch(latch)))//
+                .handler(e(new Perf()))//
+                .handler(e(new Filter("time"))) //
+                .handler(e(new Downstream("auth"))) //
+                .handler(e(new Downstream("prepare"))) //
+                .handler(e(new Upstream("gzip"))) //
+                .handler(e(new Async("bob", backgroundExecutor)))//
         ;
 
-        builder.buildPipeline().invokeNext();
+        Pipeline pipeline = builder.buildPipeline().with(StringBuilder.class, new StringBuilder());
+        pipeline.invokeNext();
         latch.await();
 
-        String string = context.get(StringBuilder.class).toString();
+        String string = pipeline.get(StringBuilder.class).toString();
         assertThat(string, equalTo("<time><auth><prepare><<bob>></gzip></time>"));
+    }
+
+    public static class Perf implements PipelineDownstreamHandler, PipelineUpstreamHandler {
+        @Override
+        public void handleDownstream(Pipeline pipeline) {
+            pipeline.with(new Chrono().start()).invokeNext();
+        }
+
+        @Override
+        public void handleUpstream(Pipeline pipeline) {
+            Chrono chrono = pipeline.get(Chrono.class).end();
+            logger.info(chrono.elapsed() + "ms");
+            pipeline.invokeNext();
+        }
+    }
+
+    static class Chrono {
+        long start, end;
+
+        public Chrono start() {
+            this.start = System.currentTimeMillis();
+            return this;
+        }
+
+        public Chrono end() {
+            this.end = System.currentTimeMillis();
+            return this;
+        }
+
+        public long elapsed() {
+            return (end - start);
+        }
     }
 
     public static class Async implements PipelineTargetHandler {

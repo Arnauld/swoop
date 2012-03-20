@@ -1,21 +1,27 @@
 package swoop;
 
 import swoop.path.Verb;
+import swoop.path.VerbMatcher;
+import swoop.path.VerbMatchers;
 import swoop.route.Route;
 
 public abstract class Filter extends Route {
     
-    private final Verb applyOn;
+    private final VerbMatcher applyOn;
 
     protected Filter() {
-        this(Verb.Any, ALL_PATHS);
+        this(VerbMatchers.any(), ALL_PATHS);
     }
 
     protected Filter(String path) {
-        this(Verb.Any, path);
+        this(VerbMatchers.any(), path);
     }
     
     protected Filter(Verb applyOn, String path) {
+        this(VerbMatchers.on(applyOn), path);
+    }
+    
+    protected Filter(VerbMatcher applyOn, String path) {
         super(path);
         this.applyOn = applyOn;
     }
@@ -25,7 +31,7 @@ public abstract class Filter extends Route {
         return true;
     }
     
-    public Verb getApplyOn() {
+    public VerbMatcher getApplyOn() {
         return applyOn;
     }
 

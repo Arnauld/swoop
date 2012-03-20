@@ -1,14 +1,20 @@
 package swoop.path;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsIn.isOneOf;
+import static swoop.path.Verb.Connect;
+import static swoop.path.Verb.Delete;
+import static swoop.path.Verb.Get;
+import static swoop.path.Verb.Head;
+import static swoop.path.Verb.Options;
+import static swoop.path.Verb.Post;
+import static swoop.path.Verb.Put;
+import static swoop.path.Verb.Trace;
 import static swoop.util.Objects.o;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import swoop.path.Verb;
 
 public class VerbTest {
 
@@ -57,20 +63,12 @@ public class VerbTest {
         assertThat(Verb.lookup("options"), equalTo(Verb.Options));
         assertThat(Verb.lookup("trace"), equalTo(Verb.Trace));
         //
-        assertThat(Verb.lookup("any"), equalTo(Verb.Any));
-    }
-
-    @Test(dataProvider = "allVerbs")
-    public void isFilter(Verb verb) {
-        assertThat(verb.isAny(), is(verb == Verb.Any));
     }
 
     @Test(dataProvider = "allVerbs")
     public void isHttpMethod(Verb verb) {
-        assertThat(verb.isHttpMethod(), is(verb != Verb.Any //
-                && verb != Verb.WebSocket //
-                && verb != Verb.EventSource//
-                && verb != Verb.StaticContent));
+        assertThat(verb.isHttpMethod(), equalTo(
+                isOneOf(Connect, Delete, Get, Head, Options, Post, Put, Trace).matches(verb)));
     }
 
     @DataProvider(name = "allVerbs")
@@ -82,37 +80,4 @@ public class VerbTest {
         return list;
     }
 
-    @Test
-    public void matches_any() {
-        for (Verb v : Verb.values()) {
-            assertThat(Verb.Any.matches(v), is(true));
-        }
-    }
-
-    @Test
-    public void matches_get() {
-        assertThat(Verb.Get.matches(Verb.Any), is(false));
-        assertThat(Verb.Get.matches(Verb.Post), is(false));
-        assertThat(Verb.Get.matches(Verb.Get), is(true));
-    }
-
-    @Test(dataProvider = "allVerbsCombi")
-    public void matches(Verb verb1, Verb verb2, boolean match) {
-        assertThat(verb1.matches(verb2), equalTo(match));
-    }
-
-    @DataProvider(name = "allVerbsCombi")
-    public Object[][] allVerbsCombi() {
-        Verb[] verbs = Verb.values();
-        Object[][] list = new Object[verbs.length * verbs.length][];
-        int count = 0;
-        for (int i = 0; i < verbs.length; i++) {
-            for (int j = 0; j < verbs.length; j++) {
-                Verb verb1 = verbs[i];
-                Verb verb2 = verbs[j];
-                list[count++] = o(verb1, verb2, verb1 == Verb.Any || verb1 == verb2);
-            }
-        }
-        return list;
-    }
 }

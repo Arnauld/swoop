@@ -1,5 +1,9 @@
 package swoop.pipeline;
 
 public interface Handler {
-    void handle(Pipeline pipeline);
+    public enum Mode {
+        Downstream,
+        Upstream,
+        Target
+    }
 }

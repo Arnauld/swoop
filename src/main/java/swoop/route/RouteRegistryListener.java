@@ -1,12 +1,12 @@
 package swoop.route;
 
-import swoop.path.Path;
+import swoop.path.VerbMatcher;
 
 
 public interface RouteRegistryListener {
-    void routeAdded(RouteRegistry registry, Path route, Route target);
-    void webSocketRouteAdded(RouteRegistry registry, Path path, WebSocketRoute target);
-    void eventSourceRouteAdded(RouteRegistry registry, Path path, EventSourceRoute target);
+    void routeAdded(RouteRegistry registry, VerbMatcher verbMatcher, String pathPattern, Route target);
+    void webSocketRouteAdded(RouteRegistry registry, VerbMatcher verbMatcher, String pathPattern, WebSocketRoute target);
+    void eventSourceRouteAdded(RouteRegistry registry, VerbMatcher verbMatcher, String pathPattern, EventSourceRoute target);
     void staticDirAdded(RouteRegistry registry, String path);
     void routeCleared(RouteRegistry registry);
 }

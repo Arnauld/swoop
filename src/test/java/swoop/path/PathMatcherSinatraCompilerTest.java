@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import swoop.path.PathMatcher;
+import swoop.path.PathPatternMatcher;
 import swoop.path.PathMatcherSinatraCompiler;
 import swoop.util.Multimap;
 
@@ -176,17 +176,17 @@ public class PathMatcherSinatraCompilerTest {
                 param("splat", "how are you"));
     }
 
-    protected static PathMatcher compile(String routeExpr) {
+    protected static PathPatternMatcher compile(String routeExpr) {
         return new PathMatcherSinatraCompiler().compile(routeExpr);
     }
 
     protected static void parametersNotMatch(String expr, String value) {
-        PathMatcher compiled = compile(expr);
+        PathPatternMatcher compiled = compile(expr);
         assertThat(compiled.matches(value), is(false));
     }
 
     protected static void parametersMatch(String expr, String value, Param... expectedParams) {
-        PathMatcher compiled = compile(expr);
+        PathPatternMatcher compiled = compile(expr);
         assertThat("[" + compiled + "] does not match [" + value + "]", compiled.matches(value), is(true));
         Multimap<String, String> params = compiled.extractParameters(value);
         for (Param p : expectedParams) {
@@ -199,7 +199,7 @@ public class PathMatcherSinatraCompilerTest {
     @Test(enabled = false)
     public void compile_d() throws UnsupportedEncodingException {
         // merges named params and query string params in params
-        PathMatcher compiled = compile("/:foo");
+        PathPatternMatcher compiled = compile("/:foo");
         Multimap<String, String> params = compiled.extractParameters("/bar?baz=biz");
         System.out.println(params);
     }

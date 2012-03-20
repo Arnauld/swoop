@@ -4,9 +4,12 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import swoop.path.Path;
-import swoop.path.PathMatcher;
+import swoop.path.PathPatternMatcher;
 import swoop.path.PathMatcherCompiler;
 import swoop.path.PathMatcherSinatraCompiler;
+import swoop.path.Verb.Category;
+import swoop.path.VerbMatcher;
+import swoop.path.VerbMatchers;
 import swoop.util.New;
 
 /**
@@ -77,27 +80,35 @@ public class RouteRegistryBasic implements RouteRegistry {
     @Override
     public void addRoute(String route, Route target) {
         try {
-            Path path = Path.parse(route);
-            addRoute(path, target);
+            VerbMatcher verbMatcher = VerbMatchers.fromExpression(Path.verbPart(route));
+            String path = Path.pathPart(route);
+            addRoute(verbMatcher, path, target);
         } catch (Exception e) {
             logger.error("The @Route value: " + route + " is not in the correct format", e);
         }
     }
 
     @Override
-    public void addRoute(Path path, Route target) {
-        if(path.getVerb().isWebSocket())
-            throw new IllegalArgumentException("WebSocket verb is not allowed for route");
-        if(path.getVerb().isEventSource())
-            throw new IllegalArgumentException("EventSource verb is not allowed for route");
-        if(path.getVerb().isAny() && !target.isFilter())
-            logger.debug("Be aware that you define a catch all ('any' verb) on a target");
+    public void addRoute(VerbMatcher verbMatcher, String pathPattern, Route target) {
+        if(!verbMatcher.belongsTo(Category.HttpMethod)) {
+            throw new IllegalArgumentException("WebSocket or EventSource verb is not allowed for route");
+        }
         
         // Adds to end of list
-        routes.add(RouteEntry.create(path, pathMatcherCompiler.compile(path.getPathPattern()), target));
+        routes.add(RouteEntry.create(verbMatcher, pathMatcherCompiler.compile(pathPattern), target));
 
         for (RouteRegistryListener listener : listeners)
-            listener.routeAdded(this, path, target);
+            listener.routeAdded(this, verbMatcher, pathPattern, target);
+    }
+    
+    @Override
+    public boolean hasWebSocketRoutes(String pathPattern) {
+        for (RouteEntry<WebSocketRoute> entry : webSocketRoutes) {
+            if (entry.pathMatches(pathPattern)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     @Override
@@ -112,25 +123,27 @@ public class RouteRegistryBasic implements RouteRegistry {
     }
     
     @Override
-    public void addWebSocket(Path path, WebSocketRoute target) {
-        if(path.getVerb().isHttpMethod())
-            throw new IllegalArgumentException("HttpMethod verb is not allowed for websocket route");
-        if(path.getVerb().isEventSource())
-            throw new IllegalArgumentException("EventSource verb is not allowed for websocket route");
-        if(path.getVerb().isAny() && !target.isFilter())
-            throw new IllegalArgumentException("Target must be defined on an exact path");
-
-        String pathPattern = path.getPathPattern();
-        PathMatcher pathMatcher = pathMatcherCompiler.compile(pathPattern);
-
-        if(!target.isFilter() && pathMatcher.hasParameters())
-            throw new IllegalArgumentException("Target must be defined on an exact path got: <" + pathPattern + ">");
+    public void addWebSocket(VerbMatcher verbMatcher, String pathPattern, WebSocketRoute target) {
+        if(!verbMatcher.belongsTo(Category.WebSocket)) {
+            throw new IllegalArgumentException("HttpMethod or EventSource verb is not allowed for route");
+        }
         
+        PathPatternMatcher pathMatcher = pathMatcherCompiler.compile(pathPattern);
         // Adds to end of list
-        webSocketRoutes.add(RouteEntry.create(path, pathMatcherCompiler.compile(path.getPathPattern()), target));
+        webSocketRoutes.add(RouteEntry.create(verbMatcher, pathMatcher, target));
         
         for (RouteRegistryListener listener : listeners)
-            listener.webSocketRouteAdded(this, path, target);
+            listener.webSocketRouteAdded(this, verbMatcher, pathPattern, target);
+    }
+    
+    @Override
+    public boolean hasEventSourceRoutes(String pathPattern) {
+        for (RouteEntry<EventSourceRoute> entry : eventSourceRoutes) {
+            if (entry.pathMatches(pathPattern)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     @Override
@@ -145,19 +158,16 @@ public class RouteRegistryBasic implements RouteRegistry {
     }
     
     @Override
-    public void addEventSource(Path path, EventSourceRoute target) {
-        if(path.getVerb().isHttpMethod())
-            throw new IllegalArgumentException("HttpMethod verb is not allowed for websocket route");
-        if(path.getVerb().isWebSocket())
-            throw new IllegalArgumentException("WebSocket verb is not allowed for websocket route");
-        if(path.getVerb().isAny() && !target.isFilter())
-            throw new IllegalArgumentException("Target must be defined on an exact path");
+    public void addEventSource(VerbMatcher verbMatcher, String pathPattern, EventSourceRoute target) {
+        if(!verbMatcher.belongsTo(Category.EventSource))
+            throw new IllegalArgumentException("HttpMethod or WebSocket verb is not allowed for route");
 
+        PathPatternMatcher pathMatcher = pathMatcherCompiler.compile(pathPattern);
         // Adds to end of list
-        eventSourceRoutes.add(RouteEntry.create(path, pathMatcherCompiler.compile(path.getPathPattern()), target));
+        eventSourceRoutes.add(RouteEntry.create(verbMatcher, pathMatcher, target));
         
         for (RouteRegistryListener listener : listeners)
-            listener.eventSourceRouteAdded(this, path, target);
+            listener.eventSourceRouteAdded(this, verbMatcher, pathPattern, target);
     }
     
     @Override
