@@ -1,6 +1,6 @@
 package samples.quiz.app;
 
-import static samples.quiz.infra.Funcs.continueWith;
+import static samples.quiz.infra.Funcs.sendErrorOrContinueWith;
 import static samples.quiz.infra.Funcs.sendErrTo;
 import static samples.quiz.infra.Funcs.sendOkTo;
 import static samples.quiz.service.QuizServiceFuncs.saveE;
@@ -63,7 +63,7 @@ public class QuizApp {
             public void handle(Request request, final Response response) {
                 console.info("get: /api/quizzes");
                 service.find(QuizSpecification.all(), //
-                        continueWith(response, sendOkTo(response, QuizCollection.class)));
+                        sendErrorOrContinueWith(response, sendOkTo(response, QuizCollection.class)));
             }
         });
 
@@ -86,7 +86,7 @@ public class QuizApp {
                 // very dangerous! Need to add some permissions checking
                 // e.g. through a filter declaration that applyOn 'delete'
                 service.remove(QuizSpecification.byId(quizId), //
-                        continueWith(response, sendOkTo(response)));
+                        sendErrorOrContinueWith(response, sendOkTo(response)));
             }
         });
 
@@ -122,13 +122,13 @@ public class QuizApp {
                     public void run() {
                         if (remaining.decrementAndGet() == 0) {
                             service.find(QuizSpecification.all(), //
-                                    continueWith(response, sendOkTo(response, QuizCollection.class)));
+                                    sendErrorOrContinueWith(response, sendOkTo(response, QuizCollection.class)));
                         }
                     }
                 };
                 Effect<Quiz> saveAndDecrement = invokeSave(service, response, keepCount);
                 for (int i = 0; i < COUNT; i++)
-                    service.create("Test Quizz #" + i, continueWith(response, saveAndDecrement));
+                    service.create("Test Quizz #" + i, sendErrorOrContinueWith(response, saveAndDecrement));
             }
         });
         
@@ -163,14 +163,14 @@ public class QuizApp {
                 for (int i = 0; i < COUNT; i++) {
                     // save, and on error send err to response
                     Effect<Quiz> save = saveE(service, flow.addCallbackButOnError(sendErrTo(response)));
-                    service.create("Test Quizz #" + i, continueWith(response, save));
+                    service.create("Test Quizz #" + i, sendErrorOrContinueWith(response, save));
                 }
                 
                 flow.join(new Runnable() {
                     @Override
                     public void run() {
                     service.find(QuizSpecification.all(), //
-                            continueWith(response, sendOkTo(response, QuizCollection.class)));
+                            sendErrorOrContinueWith(response, sendOkTo(response, QuizCollection.class)));
                     }
                 });
             }
@@ -188,7 +188,7 @@ public class QuizApp {
         return new Effect<Quiz>() {
             @Override
             public void e(Quiz quiz) {
-                service.save(quiz, continueWith(response, next));
+                service.save(quiz, sendErrorOrContinueWith(response, next));
             }
         };
     }

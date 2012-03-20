@@ -7,7 +7,7 @@ import fj.data.Either;
 import fj.data.Option;
 
 public class Funcs {
-    public static <T> Effect<Either<Throwable, T>> continueWith(final Response response, final Effect<T> onSucess) {
+    public static <T> Effect<Either<Throwable, T>> sendErrorOrContinueWith(final Response response, final Effect<T> onSucess) {
         return new Effect<Either<Throwable, T>>() {
             @Override
             public void e(Either<Throwable, T> res) {
@@ -21,7 +21,7 @@ public class Funcs {
         };
     }
 
-    public static Effect<Option<Throwable>> continueWith(final Response response, final Runnable next) {
+    public static Effect<Option<Throwable>> sendErrorOrContinueWith(final Response response, final Runnable next) {
         return new Effect<Option<Throwable>>() {
             @Override
             public void e(Option<Throwable> res) {
