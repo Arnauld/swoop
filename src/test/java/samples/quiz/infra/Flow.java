@@ -38,10 +38,12 @@ public class Flow {
             joinCallback.run();
     }
 
-    protected void taskDone() {
-        if(spawned.decrementAndGet()==0)
-            joinCallback.run();
+    protected synchronized void taskDone() {
+        if(spawned.decrementAndGet()==0) {
+            // make sure the callback has been defined...
+            if(joinCallback!=null)
+                joinCallback.run();
+        }
     }
-    
     
 }

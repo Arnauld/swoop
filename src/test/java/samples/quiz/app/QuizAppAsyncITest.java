@@ -6,6 +6,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import samples.quiz.service.QuizServiceInMemory;
+
 public class QuizAppAsyncITest extends QuizAppITest {
 
     private AtomicInteger idGen = new AtomicInteger();
@@ -13,7 +15,7 @@ public class QuizAppAsyncITest extends QuizAppITest {
     private ThreadGroup threadGroup;
 
     @Override
-    protected void initApplication() {
+    protected QuizServiceInMemory initApplication() {
         threadGroup = new ThreadGroup("Quiz") {
             @Override
             public void uncaughtException(Thread t, Throwable e) {
@@ -26,7 +28,7 @@ public class QuizAppAsyncITest extends QuizAppITest {
                 return new Thread(threadGroup, r, "Quiz-worker-" + idGen.incrementAndGet());
             }
         });
-        quizService = QuizApp.asyncPolicy(executor);
+        return QuizApp.asyncPolicy(executor);
     }
 
     @Override
