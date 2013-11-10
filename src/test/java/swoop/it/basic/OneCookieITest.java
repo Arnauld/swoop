@@ -1,6 +1,7 @@
 package swoop.it.basic;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static swoop.Swoop.get;
 import static swoop.Swoop.listener;
@@ -10,9 +11,12 @@ import static swoop.testutil.hamcrest.StringMatchers.stringContains;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.sourceforge.jwebunit.junit.WebTester;
 
+import org.hamcrest.CoreMatchers;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -64,15 +68,12 @@ public class OneCookieITest {
         String pageSource = webTester.getPageSource();
         assertThat(pageSource, equalTo("<h1>Hello!</h1>"));
         //System.out.println(webTester.getServerResponse());
-        
+
         assertThat(webTester.getServerResponse(), stringContains("Set-Cookie: swoop=\"Woot woot!\""));
-        
-        List<?> oCookies = webTester.getTestingEngine().getCookies();
-        assertThat(oCookies.size(), equalTo(1));
-        for(Object oCookie:oCookies) {
-            javax.servlet.http.Cookie servletCookie = (javax.servlet.http.Cookie)oCookie;
-            assertThat(servletCookie.getName(), equalTo("swoop"));
-            assertThat(servletCookie.getValue(), stringContains("Woot woot!"));
-        }
+        Pattern cookiePattern = Pattern.compile(".*(Set\\-Cookie: [^\r\n]*).*");
+        Matcher matcher = cookiePattern.matcher(webTester.getServerResponse());
+        assertThat(matcher.find(), is(true));
+        assertThat(matcher.group(1), stringContains("Set-Cookie: swoop=\"Woot woot!\""));
+        assertThat(matcher.group(1), stringContains("HTTPOnly;"));
     }
 }

@@ -54,7 +54,7 @@ public interface Response {
     /**
      * Adds the specified cookie to the response. This method can be called multiple times to set more than one cookie.
      * 
-     * @see #createCookie()
+     * @see #createCookie(String,String)
      */
     void cookie(Cookie cookie);
 
