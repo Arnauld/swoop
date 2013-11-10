@@ -229,7 +229,7 @@ Performance tests:
 
 ## Inspirations & Credits
 
-*SwOOp* was originally a fork from [Spark](https://github.com/perwendel/spark). Idea was to replace JEE Servlet dependency (originally from [Jetty](http://jetty.codehaus.org/jetty/) by a non-blocking and event based HTTP server. After some initial refactorings, this project has emerged as a complete rewriting in order to have a more flexible and easier to test basis. There are some remainings especially *the static bootstrap initialization*.
+*SwOOp* was originally a fork from [Spark](https://github.com/perwendel/spark). Idea was to replace JEE Servlet dependency (originally from [Jetty](http://jetty.codehaus.org/jetty/)) by a non-blocking and event based HTTP server. After some initial refactorings, this project has emerged as a complete rewriting in order to have a more flexible and easier to test basis. There are some remaining especially *the static bootstrap initialization*.
 
 After investigation, the by-default underlying HTTP server is [Webbit](https://github.com/webbit/webbit) which is based on [Netty](http://www.jboss.org/netty).
 
