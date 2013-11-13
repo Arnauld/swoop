@@ -1,29 +1,27 @@
 package swoop.server.webbit;
 
-import java.net.HttpCookie;
-
 import org.webbitserver.HttpResponse;
+import swoop.*;
 
-import swoop.Cookie;
-import swoop.Response;
-import swoop.StatusCode;
+import java.net.HttpCookie;
+import java.nio.charset.Charset;
 
 public class WebbitResponseAdapter implements Response {
 
+    private final Request request;
     private final HttpResponse response;
-    private String body;
+    private final ResponseProcessor responseProcessor;
+    private Object body;
     private String redirectLocation;
 
-    public WebbitResponseAdapter(HttpResponse response) {
+    public WebbitResponseAdapter(Request request, HttpResponse response, ResponseProcessor responseProcessor) {
         super();
+        this.request = request;
         this.response = response;
+        this.responseProcessor = responseProcessor;
     }
 
-    public String getBody() {
-        return body;
-    }
-
-    public String getRedirectLocation() {
+    public String redirectLocation() {
         return redirectLocation;
     }
 
@@ -32,9 +30,19 @@ public class WebbitResponseAdapter implements Response {
         return response;
     }
 
+    @Override
+    public void charset(Charset charset) {
+        response.charset(charset);
+    }
+
+    @Override
+    public Charset charset() {
+        return response.charset();
+    }
+
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see swoop.Response#status(int)
      */
     @Override
@@ -58,7 +66,7 @@ public class WebbitResponseAdapter implements Response {
      * @see swoop.Response#body(java.lang.String)
      */
     @Override
-    public void body(String body) {
+    public void body(Object body) {
         this.body = body;
         // don't write body yet, since filter can still modify it
         // response.content(body);
@@ -70,7 +78,7 @@ public class WebbitResponseAdapter implements Response {
      * @see swoop.Response#body()
      */
     @Override
-    public String body() {
+    public Object body() {
         return this.body;
     }
 
@@ -133,10 +141,82 @@ public class WebbitResponseAdapter implements Response {
             response.header(Response.LOCATION, redirectLocation);
             response.status(StatusCode.MOVED_TEMPORARILY);
         } else {
-            if (body != null)
-                response.content(body);
+            if (body != null) {
+                responseProcessor.process(body, request, wrap(this));
+            }
         }
         response.end();
+    }
+
+    private static Response wrap(final WebbitResponseAdapter r) {
+        return new Response() {
+            @Override
+            public Object raw() {
+                return r.raw();
+            }
+
+            @Override
+            public void status(int statusCode) {
+                r.status(statusCode);
+            }
+
+            @Override
+            public void contentType(String contentType) {
+                r.contentType(contentType);
+            }
+
+            @Override
+            public void body(Object body) {
+                if (body instanceof String) {
+                    r.body(body);
+                    r.response.content((String) body);
+                } else if (body instanceof byte[]) {
+                    r.body(body);
+                    r.response.content((byte[]) body);
+                } else
+                    throw new SwoopException("Only String or byte[] can be set as body");
+            }
+
+            @Override
+            public Object body() {
+                return r.body();
+            }
+
+            @Override
+            public void redirect(String location) {
+                throw new SwoopException("Too late!");
+            }
+
+            @Override
+            public void header(String header, String value) {
+                r.header(header, value);
+            }
+
+            @Override
+            public Cookie createCookie(String name, String value) {
+                return r.createCookie(name, value);
+            }
+
+            @Override
+            public void cookie(Cookie cookie) {
+                r.cookie(cookie);
+            }
+
+            @Override
+            public void discardCookie(String name) {
+                r.discardCookie(name);
+            }
+
+            @Override
+            public void charset(Charset charset) {
+                r.charset(charset);
+            }
+
+            @Override
+            public Charset charset() {
+                return r.charset();
+            }
+        };
     }
 
 // @formatter:off

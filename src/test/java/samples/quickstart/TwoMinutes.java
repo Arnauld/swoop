@@ -25,8 +25,12 @@ public class TwoMinutes {
                 }
                 finally {
                     long t1 = System.currentTimeMillis();
-                    String body = response.body();
-                    body += "<br/><small>Request " + request.logInfo() + " executed in " + (t1-t0) + "ms</small>";
+                    Object body = response.body();
+                    if(body instanceof String) {
+                        String b = (String)body;
+                        b += "<br/><small>Request " + request.logInfo() + " executed in " + (t1-t0) + "ms</small>";
+                        body = b;
+                    }
                     response.body(body);
                 }
             }

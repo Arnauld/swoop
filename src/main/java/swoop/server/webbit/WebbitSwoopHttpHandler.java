@@ -13,6 +13,7 @@ import org.webbitserver.HttpHandler;
 import org.webbitserver.HttpRequest;
 import org.webbitserver.HttpResponse;
 
+import swoop.ResponseProcessor;
 import swoop.StatusCode;
 import swoop.path.Path;
 import swoop.route.HaltException;
@@ -25,14 +26,17 @@ import swoop.route.RouteMatch;
 import swoop.route.RouteParameters;
 import swoop.route.RouteRegistry;
 import swoop.util.ContextBasic;
+import swoop.util.Provider;
 
 public class WebbitSwoopHttpHandler implements HttpHandler {
 
-    private Logger logger = LoggerFactory.getLogger(WebbitSwoopHttpHandler.class);
-    private RouteRegistry routeRegistry;
+    private final Logger logger = LoggerFactory.getLogger(WebbitSwoopHttpHandler.class);
+    private final RouteRegistry routeRegistry;
+    private final Provider<ResponseProcessor> responseProcessorProvider;
 
-    public WebbitSwoopHttpHandler(RouteRegistry routeRegistry) {
+    public WebbitSwoopHttpHandler(RouteRegistry routeRegistry, Provider<ResponseProcessor> responseProcessorProvider) {
         this.routeRegistry = routeRegistry;
+        this.responseProcessorProvider = responseProcessorProvider;
     }
 
     @Override
@@ -49,7 +53,7 @@ public class WebbitSwoopHttpHandler implements HttpHandler {
 
         RouteParameters routeParameters = new RouteParameters();
         WebbitRequestAdapter request = adaptRequest(httpRequest, routeParameters);
-        WebbitResponseAdapter response = adaptResponse(httpResponse);
+        WebbitResponseAdapter response = adaptResponse(request, httpResponse, responseProcessorProvider.get());
         ContextBasic context = new ContextBasic()//
                 .register(RouteParameters.class, routeParameters);
 

@@ -8,11 +8,14 @@ import swoop.route.RouteRegistryFactory;
 import swoop.server.SwoopServer;
 import swoop.server.SwoopServerFactory;
 import swoop.server.SwoopServerListener;
+import swoop.util.Provider;
 
 public class SwoopBuilder {
-    
+
     private RouteRegistryFactory routeMatcherFactory;
     private SwoopServerFactory swoopServerFactory;
+    //
+    private ResponseProcessor responseProcessor = new DefaultResponseProcessor();
     //
     private boolean initialized = false;
     private SwoopServer server;
@@ -26,27 +29,27 @@ public class SwoopBuilder {
         }
         initialized = false;
     }
-    
+
     public void routeMatcherFactory(RouteRegistryFactory routeMatcherFactory) {
         this.routeMatcherFactory = routeMatcherFactory;
     }
-    
+
     protected RouteRegistryFactory getOrDefaultRouteMatcherFactory() {
-        if(routeMatcherFactory==null)
+        if (routeMatcherFactory == null)
             routeMatcherFactory = Defaults.getRouteMatcherFactory();
         return routeMatcherFactory;
     }
-    
+
     public void swoopServerFactory(SwoopServerFactory swoopServerFactory) {
         this.swoopServerFactory = swoopServerFactory;
     }
-    
+
     protected SwoopServerFactory getOrDefaultSwoopServerFactory() {
-        if(swoopServerFactory==null)
+        if (swoopServerFactory == null)
             swoopServerFactory = Defaults.getSwoopServerFactory();
         return swoopServerFactory;
     }
-    
+
     public SwoopServer getServer() {
         return server;
     }
@@ -54,9 +57,8 @@ public class SwoopBuilder {
     /**
      * Set the port that Swoop should listen on. If not called the default port is 4567. This has to be called before
      * any route mapping is done.
-     * 
-     * @param port
-     *            The port number
+     *
+     * @param port The port number
      */
     public synchronized void setPort(int port) {
         if (initialized) {
@@ -76,9 +78,6 @@ public class SwoopBuilder {
 
     /**
      * Map the route for HTTP GET requests
-     * 
-     * @param route
-     *            The route
      */
     public void get(Action action) {
         addRoute(Verb.Get, action);
@@ -86,9 +85,6 @@ public class SwoopBuilder {
 
     /**
      * Map the route for HTTP POST requests
-     * 
-     * @param route
-     *            The route
      */
     public void post(Action action) {
         addRoute(Verb.Post, action);
@@ -96,9 +92,6 @@ public class SwoopBuilder {
 
     /**
      * Map the route for HTTP PUT requests
-     * 
-     * @param route
-     *            The route
      */
     public void put(Action action) {
         addRoute(Verb.Put, action);
@@ -106,9 +99,6 @@ public class SwoopBuilder {
 
     /**
      * Map the route for HTTP DELETE requests
-     * 
-     * @param route
-     *            The route
      */
     public void delete(Action action) {
         addRoute(Verb.Delete, action);
@@ -116,9 +106,6 @@ public class SwoopBuilder {
 
     /**
      * Map the route for HTTP HEAD requests
-     * 
-     * @param route
-     *            The route
      */
     public void head(Action action) {
         addRoute(Verb.Head, action);
@@ -126,9 +113,6 @@ public class SwoopBuilder {
 
     /**
      * Map the route for HTTP TRACE requests
-     * 
-     * @param route
-     *            The route
      */
     public void trace(Action action) {
         addRoute(Verb.Trace, action);
@@ -136,9 +120,6 @@ public class SwoopBuilder {
 
     /**
      * Map the route for HTTP CONNECT requests
-     * 
-     * @param route
-     *            The route
      */
     public void connect(Action action) {
         addRoute(Verb.Connect, action);
@@ -146,9 +127,6 @@ public class SwoopBuilder {
 
     /**
      * Map the route for HTTP OPTIONS requests
-     * 
-     * @param route
-     *            The route
      */
     public void options(Action action) {
         addRoute(Verb.Options, action);
@@ -156,9 +134,6 @@ public class SwoopBuilder {
 
     /**
      * Maps a filter to be executed before any matching routes
-     * 
-     * @param filter
-     *            The filter
      */
     public void before(Before before) {
         addFilter(before);
@@ -166,9 +141,6 @@ public class SwoopBuilder {
 
     /**
      * Maps a filter to be executed after any matching routes
-     * 
-     * @param filter
-     *            The filter
      */
     public void after(After after) {
         addFilter(after);
@@ -176,9 +148,8 @@ public class SwoopBuilder {
 
     /**
      * Maps an interceptor to be executed around any matching routes
-     * 
-     * @param interceptor
-     *            The interceptor
+     *
+     * @param interceptor The interceptor
      */
     public void around(Filter interceptor) {
         addFilter(interceptor);
@@ -193,8 +164,7 @@ public class SwoopBuilder {
     }
 
     /**
-     * 
-     * @param filter
+     *
      */
     public void webSocket(WebSocket webSocket) {
         init();
@@ -202,7 +172,6 @@ public class SwoopBuilder {
     }
 
     /**
-     * 
      * @param filter
      */
     public void aroundWebSocket(WebSocketFilter filter) {
@@ -225,8 +194,7 @@ public class SwoopBuilder {
     }
 
     /**
-     * 
-     * @param filter
+     *
      */
     public void eventSource(EventSource eventSource) {
         init();
@@ -234,7 +202,6 @@ public class SwoopBuilder {
     }
 
     /**
-     * 
      * @param filter
      */
     public void aroundEventSource(EventSourceFilter filter) {
@@ -262,22 +229,27 @@ public class SwoopBuilder {
     private synchronized final void init() {
         if (!initialized) {
             routeRegistry = getOrDefaultRouteMatcherFactory().create();
-            server = getOrDefaultSwoopServerFactory().create(routeRegistry);
+            server = getOrDefaultSwoopServerFactory().create(routeRegistry, new Provider<ResponseProcessor>() {
+                @Override
+                public ResponseProcessor get() {
+                    return responseProcessor;
+                }
+            });
             startServer();
             initialized = true;
         }
     }
-    
+
     /**
      * Call {@link #asyncStartServer()} by default.
-     * 
+     *
      * @see #execStartServer()
      * @see #asyncStartServer()
      */
     protected void startServer() {
         asyncStartServer();
     }
-    
+
     protected void asyncStartServer() {
         Defaults.executeAsynchronously(new Runnable() {
             @Override
@@ -286,10 +258,14 @@ public class SwoopBuilder {
             }
         });
     }
-    
+
     protected void execStartServer() {
         if (serverListener != null)
             server.addListener(serverListener);
         server.ignite(port);
+    }
+
+    public int getPort() {
+        return port;
     }
 }

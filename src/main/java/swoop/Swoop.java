@@ -10,7 +10,7 @@ public class Swoop {
         }
     };
 
-    private static SwoopBuilder context() {
+    public static SwoopBuilder context() {
         return contextRef.get();
     }
 

@@ -1,5 +1,7 @@
 package swoop;
 
+import java.nio.charset.Charset;
+
 public interface Response {
 
     public final static String ACCEPT_RANGES = "Accept-Ranges",//
@@ -27,15 +29,14 @@ public interface Response {
     /**
      * Sets the body
      */
-    void body(String body);
+    void body(Object body);
 
-    String body();
+    Object body();
 
     /**
      * Trigger a browser redirect
-     * 
-     * @param location
-     *            Where to redirect
+     *
+     * @param location Where to redirect
      */
     void redirect(String location);
 
@@ -46,15 +47,15 @@ public interface Response {
 
     /**
      * Create a new cookie but does not add it to the response.
-     * 
+     *
      * @see #cookie(Cookie)
      */
     Cookie createCookie(String name, String value);
 
     /**
      * Adds the specified cookie to the response. This method can be called multiple times to set more than one cookie.
-     * 
-     * @see #createCookie(String,String)
+     *
+     * @see #createCookie(String, String)
      */
     void cookie(Cookie cookie);
 
@@ -63,5 +64,18 @@ public interface Response {
      * zero.
      */
     void discardCookie(String name);
-    
+
+    /**
+     * For text based responses, sets the Charset to encode the response as.
+     * <p/>
+     * If not set, defaults to UTF8.
+     */
+    void charset(Charset charset);
+
+    /**
+     * Current Charset used to encode to response as.
+     *
+     * @see #charset(Charset)
+     */
+    Charset charset();
 }

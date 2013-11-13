@@ -9,6 +9,7 @@ import swoop.server.SwoopServer;
 import swoop.server.SwoopServerFactory;
 import swoop.server.webbit.WebbitSwoopServerFactory;
 import swoop.util.DefaultThreadFactory;
+import swoop.util.Provider;
 
 public class Defaults {
     private static RouteRegistryFactory routeMatcherFactory = new RouteRegistryBasic.Factory();
@@ -31,8 +32,8 @@ public class Defaults {
     public static void setSwoopServerFactory(SwoopServerFactory swoopServerFactory) {
         Defaults.swoopServerFactory = swoopServerFactory;
     }
-    public static SwoopServer createSwoopServer(RouteRegistry routeMatcher) {
-        return getSwoopServerFactory().create(routeMatcher);
+    public static SwoopServer createSwoopServer(RouteRegistry routeMatcher, Provider<ResponseProcessor> responseProcessorProvider) {
+        return getSwoopServerFactory().create(routeMatcher, responseProcessorProvider);
     }
     
     public static ThreadFactory getThreadFactory() {

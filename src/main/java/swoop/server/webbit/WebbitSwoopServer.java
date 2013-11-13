@@ -10,25 +10,29 @@ import org.webbitserver.WebServer;
 import org.webbitserver.WebServers;
 import org.webbitserver.handler.StaticFileHandler;
 
+import swoop.ResponseProcessor;
 import swoop.route.RouteRegistry;
 import swoop.route.RouteRegistryListener;
 import swoop.route.RouteRegistryListenerAdapter;
 import swoop.server.SwoopServer;
 import swoop.server.SwoopServerListener;
 import swoop.util.New;
+import swoop.util.Provider;
 
 public class WebbitSwoopServer implements SwoopServer {
 
-    private Logger log = LoggerFactory.getLogger(WebbitSwoopServer.class);
+    private final Logger log = LoggerFactory.getLogger(WebbitSwoopServer.class);
+
+    private final RouteRegistry routeRegistry;
+    private final Provider<ResponseProcessor> responseProcessorProvider;
 
     private WebServer webServer;
-    private RouteRegistry routeRegistry;
-
     private RouteRegistryListener listener;
     private CopyOnWriteArraySet<SwoopServerListener> listeners = New.copyOnWriteArraySet();
 
-    public WebbitSwoopServer(RouteRegistry routeRegistry) {
+    public WebbitSwoopServer(RouteRegistry routeRegistry, Provider<ResponseProcessor> responseProcessorProvider) {
         this.routeRegistry = routeRegistry;
+        this.responseProcessorProvider = responseProcessorProvider;
         registerListener();
     }
 
@@ -95,7 +99,7 @@ public class WebbitSwoopServer implements SwoopServer {
     }
 
     protected void defineSwoopHttpHandler(WebServer webServer, RouteRegistry routeRegistry) {
-        webServer.add(new WebbitSwoopHttpHandler(routeRegistry));
+        webServer.add(new WebbitSwoopHttpHandler(routeRegistry, responseProcessorProvider));
     }
     
     protected void defineSwoopWebSocketHandler(WebServer webServer, RouteRegistry routeRegistry) {

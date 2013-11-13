@@ -9,6 +9,8 @@ import org.webbitserver.HttpResponse;
 import org.webbitserver.WebSocketConnection;
 
 import swoop.Cookie;
+import swoop.Request;
+import swoop.ResponseProcessor;
 import swoop.WebSocketMessage;
 import swoop.route.RouteParameters;
 import swoop.route.WebSocketMessageBasic;
@@ -31,8 +33,8 @@ public class WebbitAdapters {
         return new WebbitCookieAdapter(httpCookie);
     }
 
-    public static WebbitResponseAdapter adaptResponse(HttpResponse httpResponse) {
-        return new WebbitResponseAdapter(httpResponse);
+    public static WebbitResponseAdapter adaptResponse(Request request, HttpResponse httpResponse, ResponseProcessor responseProcessor) {
+        return new WebbitResponseAdapter(request, httpResponse, responseProcessor);
     }
 
     public static WebbitWebSocketConnection adaptConnection(WebSocketConnection wConnection,

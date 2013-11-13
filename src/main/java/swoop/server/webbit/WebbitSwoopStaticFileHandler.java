@@ -13,12 +13,14 @@ import org.webbitserver.handler.StaticFileHandler;
 import org.webbitserver.helpers.ClassloaderResourceHelper;
 import swoop.ResourceContent;
 import swoop.ResourceHandler;
+import swoop.ResponseProcessor;
 import swoop.StatusCode;
 import swoop.path.Path;
 import swoop.path.Verb;
 import swoop.route.*;
 import swoop.util.Context;
 import swoop.util.ContextBasic;
+import swoop.util.Provider;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,15 +40,17 @@ public class WebbitSwoopStaticFileHandler implements HttpHandler {
 
     private Logger logger = LoggerFactory.getLogger(WebbitSwoopStaticFileHandler.class);
     private final RouteRegistry routeRegistry;
+    private final Provider<ResponseProcessor> responseProcessorProvider;
     private final InternalResourceHandler delegate;
 
-    public WebbitSwoopStaticFileHandler(RouteRegistry routeRegistry, Executor ioThread) {
-        this.delegate = new InternalResourceHandler(ioThread, 0);
+    public WebbitSwoopStaticFileHandler(RouteRegistry routeRegistry, Provider<ResponseProcessor> responseProcessorProvider, Executor ioThread) {
         this.routeRegistry = routeRegistry;
+        this.responseProcessorProvider = responseProcessorProvider;
+        this.delegate = new InternalResourceHandler(ioThread, 0);
     }
 
-    public WebbitSwoopStaticFileHandler(RouteRegistry routeRegistry) {
-        this(routeRegistry, newFixedThreadPool(4));
+    public WebbitSwoopStaticFileHandler(RouteRegistry routeRegistry, Provider<ResponseProcessor> responseProcessorProvider) {
+        this(routeRegistry, responseProcessorProvider, newFixedThreadPool(4));
     }
 
     @Override
@@ -71,7 +75,7 @@ public class WebbitSwoopStaticFileHandler implements HttpHandler {
 
         RouteParameters routeParameters = new RouteParameters();
         WebbitRequestAdapter request = adaptRequest(httpRequest, routeParameters);
-        WebbitResponseAdapter response = adaptResponse(httpResponse);
+        WebbitResponseAdapter response = adaptResponse(request, httpResponse, responseProcessorProvider.get());
         ContextBasic context = new ContextBasic()//
                 .register(RouteParameters.class, routeParameters)
                 .register(ResourceHandler.class, delegate);
