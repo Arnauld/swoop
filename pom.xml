@@ -48,7 +48,6 @@
         <webbit.version>0.4.15</webbit.version>
         <functionaljava.version>3.0</functionaljava.version>
 
-        <gpg.passphrase>dev</gpg.passphrase>
         <passphrase>${gpg.passphrase}</passphrase>
     </properties>
 
