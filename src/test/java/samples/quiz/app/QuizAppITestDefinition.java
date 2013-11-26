@@ -4,9 +4,6 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.text.pattern.Patterns.anyCharacterInCategory;
-import static org.hamcrest.text.pattern.Patterns.oneOrMore;
-import static org.hamcrest.text.pattern.Patterns.sequence;
 import static swoop.testutil.hamcrest.StringMatchers.uuidMatcher;
 
 import java.io.IOException;
@@ -27,8 +24,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.hamcrest.text.pattern.PatternComponent;
-import org.hamcrest.text.pattern.PatternMatcher;
+import org.hamcrest.Matcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
@@ -41,6 +37,7 @@ import samples.Json;
 import samples.quiz.infra.Result;
 import samples.quiz.service.QuizServiceInMemory;
 import swoop.it.support.PortProvider;
+import swoop.testutil.hamcrest.RegexMatcher;
 import swoop.util.New;
 import fj.Effect;
 
@@ -211,9 +208,10 @@ public abstract class QuizAppITestDefinition {
         }
     }
 
-    private static PatternMatcher testTitleMatcher() {
-        PatternComponent digit = anyCharacterInCategory("Digit");
-        return new PatternMatcher(sequence("Test Quizz #", oneOrMore(digit)));
+    private static Matcher<String> testTitleMatcher() {
+        //PatternComponent digit = anyCharacterInCategory("Digit");
+        //return new PatternMatcher(sequence("Test Quizz #", oneOrMore(digit)));
+        return new RegexMatcher("Test Quizz #[0-9]+");
     }
     
     public static class NullEffect<T> extends Effect<T> {

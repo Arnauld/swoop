@@ -186,12 +186,14 @@
             <scope>test</scope>
         </dependency>
 
+        <!--
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-text-patterns</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
+        -->
 
         <dependency>
             <groupId>org.testng</groupId>

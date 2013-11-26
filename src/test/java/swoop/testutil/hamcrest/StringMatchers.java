@@ -1,16 +1,10 @@
 package swoop.testutil.hamcrest;
 
-import static java.util.Arrays.asList;
-import static org.hamcrest.text.pattern.Patterns.anyCharacterInCategory;
-import static org.hamcrest.text.pattern.Patterns.capture;
-import static org.hamcrest.text.pattern.Patterns.exactly;
-import static org.hamcrest.text.pattern.Patterns.separatedBy;
-
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
 import org.hamcrest.text.StringContainsInOrder;
-import org.hamcrest.text.pattern.PatternComponent;
-import org.hamcrest.text.pattern.PatternMatcher;
+
+import static java.util.Arrays.asList;
 
 public class StringMatchers {
 
@@ -24,6 +18,12 @@ public class StringMatchers {
         return new StringContainsInOrder(substrings);
     }
 
+    public static Matcher<String> uuidMatcher() {
+        String hex = "[a-f0-9]";
+        return new RegexMatcher(hex + "{8}\\-" + hex + "{4}\\-" + hex + "{4}\\-" + hex + "{4}\\-" + hex + "{12}");
+    }
+
+/*
     public static PatternMatcher uuidMatcher() {
         PatternComponent hexa = anyCharacterInCategory("XDigit");
         return new PatternMatcher(separatedBy("-", //
@@ -33,4 +33,5 @@ public class StringMatchers {
                 capture("block4", exactly(4, hexa)), //
                 capture("block5", exactly(12, hexa))));
     }
+    */
 }
