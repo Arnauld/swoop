@@ -382,7 +382,10 @@
         <profile>
             <id>sign-artifacts</id>
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <property>
+                   <name>performRelease</name>
+                   <value>true</value>
+                </property>
             </activation>
             <build>
                 <plugins>
@@ -390,9 +393,6 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
                         <version>1.4</version>
-                        <configuration>
-                            <passphrase>${passphrase}</passphrase>
-                        </configuration>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
