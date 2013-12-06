@@ -402,6 +402,9 @@
                                 </goals>
                             </execution>
                         </executions>
+                        <configuration>
+                            <keyname>AC9D96AC</keyname>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
